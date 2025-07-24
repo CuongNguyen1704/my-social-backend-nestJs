@@ -15,7 +15,7 @@ import { MailModule } from './modules/mail/mail.module';
       port: 5432,
       username:'postgres',
       password:'123456',
-      database:'auth',
+      database:'mysocail_backend_nestjs',
       entities: [UserEntity],
       synchronize:true
       
