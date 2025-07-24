@@ -10,6 +10,9 @@ import { RequestWithUser } from "./type/Request-with-user.interface";
 import { RefresTokenDto } from "./dto/refreshToken.dto";
 import { ForgotPassWorDto } from "./dto/forgot_password.dto";
 import { ResetPasswordDto } from "./dto/reset-pass-word.dto";
+import { ChangPasswordDto } from "./dto/change-password.dto";
+
+
 
 
 @Controller('auth')
@@ -53,5 +56,13 @@ export class AuthController {
     async resetPassword (@Body() resetPassword: ResetPasswordDto){
         return this.authService.resetPassword(resetPassword)
     }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('change-password')
+    async changePassword(@Request() req:RequestWithUser,@Body() changePassword: ChangPasswordDto){
+        return this.authService.changePassword(req.user.id,changePassword)
+    }
+
+
 
 }

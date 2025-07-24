@@ -1,4 +1,4 @@
-import { BadGatewayException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
@@ -17,6 +17,9 @@ import { MailService } from '../mail/mail.service';
 import * as dayjs from 'dayjs';
 import { ResetPasswordDto } from './dto/reset-pass-word.dto';
 import { threadId } from 'worker_threads';
+import { ChangPasswordDto } from './dto/change-password.dto';
+import { AUTH_ERROR_MESSAGES } from './constants';
+
 
 @Injectable()
 export class AuthService {
@@ -140,6 +143,38 @@ export class AuthService {
         password: await bcrypt.hash(password,10)
     })
     return true
+  }
+
+async changePassword(userId:number,changePassword:ChangPasswordDto){
+        const user = await this.userRepositoty.findOne({
+          where:{
+            id: userId
+          }
+        })
+
+        if(!user){
+          throw new NotFoundException("Người Dùng Không Tồn Tại")
+        }
+
+        if(changePassword.newPassword != changePassword.passwordConfirmation){
+              throw new BadRequestException(AUTH_ERROR_MESSAGES.PASSWORD_CONFIRM_NOT_MATCH)
+        }
+
+        if(!bcrypt.compareSync(changePassword.oldPassword,user.password)){
+            throw new BadRequestException(AUTH_ERROR_MESSAGES.INCORRECT_CURRENT_PASSWORD)
+        }
+
+        if(bcrypt.compareSync(changePassword.newPassword,user.password)){
+          throw new BadRequestException(AUTH_ERROR_MESSAGES.NEW_PASSWORD_SAME_AS_CURRENT_PASSWORD)
+        }
+
+        const hashPassWord = await bcrypt.hash(changePassword.newPassword,10)
+        await this.userRepositoty.update(user.id,{
+          password: hashPassWord
+        })
+
+        return true
+        
   }
 
 
