@@ -1,4 +1,4 @@
-import { BadGatewayException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
@@ -157,15 +157,15 @@ async changePassword(userId:number,changePassword:ChangPasswordDto){
         }
 
         if(changePassword.newPassword != changePassword.passwordConfirmation){
-              throw new BadGatewayException(AUTH_ERROR_MESSAGES.PASSWORD_CONFIRM_NOT_MATCH)
+              throw new BadRequestException(AUTH_ERROR_MESSAGES.PASSWORD_CONFIRM_NOT_MATCH)
         }
 
         if(!bcrypt.compareSync(changePassword.oldPassword,user.password)){
-            throw new BadGatewayException(AUTH_ERROR_MESSAGES.INCORRECT_CURRENT_PASSWORD)
+            throw new BadRequestException(AUTH_ERROR_MESSAGES.INCORRECT_CURRENT_PASSWORD)
         }
 
         if(bcrypt.compareSync(changePassword.newPassword,user.password)){
-          throw new BadGatewayException(AUTH_ERROR_MESSAGES.NEW_PASSWORD_SAME_AS_CURRENT_PASSWORD)
+          throw new BadRequestException(AUTH_ERROR_MESSAGES.NEW_PASSWORD_SAME_AS_CURRENT_PASSWORD)
         }
 
         const hashPassWord = await bcrypt.hash(changePassword.newPassword,10)
