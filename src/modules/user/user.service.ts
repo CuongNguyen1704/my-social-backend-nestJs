@@ -1,9 +1,24 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  Query,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { use } from 'passport';
+import { CreateUserDto } from './dto/create-user.dto';
+import { EXIST_ERROR } from './messages';
+import { promises } from 'dns';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { plainToInstance } from 'class-transformer';
+import * as path from 'path';
+import * as fs from 'fs';
+import { GetOneDto } from './dto/getOne-user.dto';
+import { getManyUserByname } from './dto/getMany-byname.dto';
+import { ILike } from 'typeorm';
 
 @Injectable()
 export class UserService {
@@ -12,7 +27,15 @@ export class UserService {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async createUser(userData: Partial<UserEntity>): Promise<UserEntity> {
+  async createUser(
+    userData: CreateUserDto,
+  ): Promise<UserEntity> {
+    const existingUser = await this.userRepository.findOneBy({
+      email: userData.email,
+    });
+    if (existingUser) {
+      throw new ConflictException(EXIST_ERROR.EMAIL_EXIT);
+    }
     const user = this.userRepository.create(userData);
     return this.userRepository.save(user);
   }
@@ -54,6 +77,52 @@ export class UserService {
         return user;
       }
     }
-    return false
+    return false;
+  }
+
+  async softDelete(userId: number) {
+    const user = await this.userRepository.findOneBy({ id: userId });
+    if (!user) {
+      throw new NotFoundException('User không tồn tại');
+    }
+    return this.userRepository.softDelete(userId);
+  }
+
+  async update(
+    id: number,
+    updateUser: Partial<UserEntity>,
+  ): Promise<UpdateUserDto> {
+    const user = await this.userRepository.findOneBy({ id: id });
+
+    if (!user) {
+      throw new NotFoundException('User  không tồn tại');
+    }
+    if (updateUser && updateUser.password) {
+      updateUser.password = await bcrypt.hash(updateUser.password, 10);
+    }
+    await this.userRepository.update(id, updateUser);
+    const userUpdate = await this.userRepository.findOneBy({ id });
+    return plainToInstance(UpdateUserDto, userUpdate, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async getOneUser(id:number):Promise<GetOneDto>{
+    const user = await this.userRepository.findOneBy({id})
+    if(!user){
+        throw new NotFoundException("User không tồn tại")
+    }
+    return plainToInstance(GetOneDto,user,{
+      excludeExtraneousValues:true
+    })
+  }
+
+  async getManyUser(nameDto:getManyUserByname):Promise<UserEntity[]>{
+      const users = await this.userRepository.find({
+        where:{
+            name: ILike(`%${nameDto.name}%`)
+      }})
+
+      return users
   }
 }

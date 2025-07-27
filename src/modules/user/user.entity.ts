@@ -2,6 +2,7 @@ import {
   BeforeInsert,
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -62,4 +63,7 @@ export class UserEntity {
 
   @CreateDateColumn()
   updated_at: Date;
+
+  @DeleteDateColumn()
+  deleteAt?: Date
 }

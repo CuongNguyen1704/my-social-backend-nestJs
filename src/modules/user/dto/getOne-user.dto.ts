@@ -1,13 +1,15 @@
-import { IsDate, IsEnum, IsNotEmpty, IsString } from "class-validator";
-import { GENDER } from "../enums";
 import { Expose } from "class-transformer";
+import { IsDate, IsEnum, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsNull } from "typeorm";
+import { GENDER } from "../enums";
 
+export class GetOneDto {
 
-export class  CreateUserDto {
     @IsNotEmpty()
     @IsString()
     @Expose()
     name: string
+    
 
     @IsNotEmpty()
     @IsString()
@@ -38,5 +40,6 @@ export class  CreateUserDto {
     @IsString()
     @Expose()
     phone:string
+
 
 }
