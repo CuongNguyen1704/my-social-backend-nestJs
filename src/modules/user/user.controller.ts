@@ -7,20 +7,11 @@ import {
   Post,
   Put,
   Query,
-  Request,
-  UploadedFile,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { plainToInstance } from 'class-transformer';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
-import { use } from 'passport';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
-import { RequestWithUser } from '../auth/type/Request-with-user.interface';
 import { UserEntity } from './user.entity';
 import { getManyUserByname } from './dto/get-many-by-name.dto';
 import { UserFilterDto } from './dto/filter-user.dto';
@@ -64,7 +55,7 @@ export class UserController {
       }
   }
 
-  @UseGuards(JwtAuthGuard)
+
   @Get()
   async fillMany(@Query() userFilterDto:UserFilterDto){
     console.log(userFilterDto)

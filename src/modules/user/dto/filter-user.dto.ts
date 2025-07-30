@@ -16,18 +16,5 @@ export class UserFilter {
 }
 
 export class UserFilterDto extends FilterDto<UserFilter> {
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => UserFilter)
-  @Transform(({ value }) => {
-    if (typeof value === 'string') {
-      try {
-        return JSON.parse(value);
-      } catch {
-        return undefined;
-      }
-    }
-    return value;
-  })
-  declare filters?: UserFilter;
+
 }

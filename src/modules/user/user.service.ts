@@ -136,10 +136,10 @@ export class UserService {
   }
 
   async fillMany(userFilterDto:UserFilterDto):Promise<PaginatedReponse<UpdateUserDto>>{
-     const { users, total,totalAll} = await this.RepositoryUser.fillMany(userFilterDto)
+     const { users, total} = await this.RepositoryUser.fillMany(userFilterDto)
      const transformerUsers = plainToInstance(UpdateUserDto,users,{
       excludeExtraneousValues:true
      })
-     return paginatedReponse(transformerUsers,total,userFilterDto.page ?? 1,userFilterDto.limit??3,totalAll)
+     return paginatedReponse(transformerUsers,total,userFilterDto.page ?? 1,userFilterDto.limit??3)
   }
 }
