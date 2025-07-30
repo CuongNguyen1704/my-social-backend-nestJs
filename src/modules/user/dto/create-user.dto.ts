@@ -1,4 +1,4 @@
-import { IsDate, IsEnum, IsNotEmpty, IsString } from "class-validator";
+import { IsDate, IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator";
 import { GENDER } from "../enums";
 import { Expose } from "class-transformer";
 
@@ -25,9 +25,11 @@ export class  CreateUserDto {
 
     @IsString()
     @Expose()
+    @IsOptional()
     avatar:string
 
     @IsDate()
+    @IsOptional()
     dateOfBirth:Date
 
     @IsString()
@@ -37,6 +39,7 @@ export class  CreateUserDto {
 
     @IsString()
     @Expose()
+    @IsOptional()
     phone:string
 
 }

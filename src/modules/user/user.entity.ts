@@ -1,18 +1,15 @@
 import {
   BeforeInsert,
   Column,
-  CreateDateColumn,
-  DeleteDateColumn,
   Entity,
-  PrimaryGeneratedColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { GENDER } from './enums';
+import { BaseEntity } from 'src/common/entities/base.entity';
 
 @Entity('users')
-export class UserEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+export class UserEntity extends BaseEntity {
+
 
   @Column({ unique: true })
   email: string;
@@ -24,7 +21,7 @@ export class UserEntity {
   password: string;
 
   @Column({ nullable: true })
-  refresh_token?: string;
+  refreshToken?: string;
 
   @BeforeInsert()
   async hassPassword() {
@@ -58,12 +55,5 @@ export class UserEntity {
   @Column({nullable:true})
   phone:string
 
-  @CreateDateColumn()
-  created_at: Date;
 
-  @CreateDateColumn()
-  updated_at: Date;
-
-  @DeleteDateColumn()
-  deleteAt?: Date
 }

@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Request,
   UploadedFile,
   UseGuards,
@@ -22,27 +23,27 @@ import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { RequestWithUser } from '../auth/type/Request-with-user.interface';
 import { UserEntity } from './user.entity';
 import { getManyUserByname } from './dto/getMany-byname.dto';
+import { UserFilterDto } from './dto/filter-user.dto';
 
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService
               
   ) {}
-
+  // thêm xác thực jwt
+  @UseGuards(JwtAuthGuard)
   @Post('create')
   async createUser(
     @Body() userDto: CreateUserDto,
   ) {
     const user = await this.userService.createUser(userDto);
-    const resposeData = plainToInstance(CreateUserDto, user, {
-      excludeExtraneousValues: true,
-    });
     return {
       message: 'Tạo User Thành công',
-      data: resposeData,
+      data: user,
     };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async getOne(@Param('id') id:number){
       const oneUser = await this.userService.getOneUser(id)
@@ -52,6 +53,7 @@ export class UserController {
       }
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
   async getMany(@Body() name:getManyUserByname){
     console.log(name)
@@ -61,16 +63,26 @@ export class UserController {
         data: users
       }
   }
-  
 
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async fillMany(@Query() userFilterDto:UserFilterDto){
+    console.log(userFilterDto.filters)
+      const users = await this.userService.fillMany(userFilterDto);
+      return users
+  }
+
+  
+  @UseGuards()
   @Delete(':id')
-  async softDelete(@Param('id') id:string){
-        await this.userService.softDelete(Number(id))
+  async softDelete(@Param('id') id:number){
+        await this.userService.softDelete(id)
         return {
             message: "Xóa mềm thành công user"
         }
   }
-
+  // thêm xác thực jwt
+  @UseGuards(JwtAuthGuard)
   @Put(':id')
   async  update(@Param('id') id:number,
   @Body() updateUser: Partial<UserEntity>, ){

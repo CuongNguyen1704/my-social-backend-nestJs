@@ -19,17 +19,23 @@ import * as fs from 'fs';
 import { GetOneDto } from './dto/getOne-user.dto';
 import { getManyUserByname } from './dto/getMany-byname.dto';
 import { ILike } from 'typeorm';
+import { UserFilterDto } from './dto/filter-user.dto';
+import { UsersRepository } from './repositories/user.repository';
+import { PaginatedReponse } from 'src/common/response/response.interface';
+import { paginatedReponse } from 'src/shared/helpers/paginate-response';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+
+    private readonly RepositoryUser: UsersRepository
   ) {}
 
   async createUser(
     userData: CreateUserDto,
-  ): Promise<UserEntity> {
+  ): Promise<CreateUserDto> {
     const existingUser = await this.userRepository.findOneBy({
       email: userData.email,
     });
@@ -37,7 +43,10 @@ export class UserService {
       throw new ConflictException(EXIST_ERROR.EMAIL_EXIT);
     }
     const user = this.userRepository.create(userData);
-    return this.userRepository.save(user);
+    const saveUser = await this.userRepository.save(user);
+    return plainToInstance(CreateUserDto,saveUser,{
+      excludeExtraneousValues:true
+    })
   }
 
   async findByEmail(email: string) {
@@ -64,15 +73,15 @@ export class UserService {
       throw new NotFoundException('User Not Found');
     }
     const hashedRefrehToken = await bcrypt.hash(refres_token, 10); // mã hóa refrestoken
-    user.refresh_token = hashedRefrehToken;
+    user.refreshToken = hashedRefrehToken;
 
     return this.userRepository.save(user);
   }
 
   async verifyRefreshToken(refres_token: string, userId: number) {
     const user = await this.userRepository.findOneBy({ id: userId });
-    if (user && user.refresh_token) {
-      const status = await bcrypt.compare(refres_token, user.refresh_token);
+    if (user && user.refreshToken) {
+      const status = await bcrypt.compare(refres_token, user.refreshToken);
       if (status) {
         return user;
       }
@@ -124,5 +133,13 @@ export class UserService {
       }})
 
       return users
+  }
+
+  async fillMany(userFilterDto:UserFilterDto):Promise<PaginatedReponse<UpdateUserDto>>{
+     const { users, total} = await this.RepositoryUser.fillMany(userFilterDto)
+     const transformerUsers = plainToInstance(UpdateUserDto,users,{
+      excludeExtraneousValues:true
+     })
+     return paginatedReponse(transformerUsers,total,userFilterDto.page ?? 1,userFilterDto.limit??3)
   }
 }
