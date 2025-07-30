@@ -67,7 +67,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Get()
   async fillMany(@Query() userFilterDto:UserFilterDto){
-    console.log(userFilterDto.filters)
+    console.log(userFilterDto)
       const users = await this.userService.fillMany(userFilterDto);
       return users
   }

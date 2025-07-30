@@ -12,7 +12,7 @@ export class UsersRepository {
         private readonly userRepository: Repository<UserEntity>
     ){}
 
-    async fillMany(userFilterDto:UserFilterDto): Promise<{users: UserEntity[];total:number}>{
+    async fillMany(userFilterDto:UserFilterDto): Promise<{users: UserEntity[];total:number;totalAll:number}>{
             const {filters,search,sort} = userFilterDto;
             const page = userFilterDto.page ?? 1
             const limit = userFilterDto.limit ?? 3
@@ -37,12 +37,14 @@ export class UsersRepository {
                 const [filed,direction] = sort.split(':')
                 order[filed] = direction.toUpperCase() as 'ASC' | 'DESC'
               }
+              const totalAll = await this.userRepository.count()
+
               const [users,total] = await this.userRepository.findAndCount({
                 where: searchConditions,
                 order,
                 skip:(page- 1) * limit,
                 take:limit
               })
-            return {users,total}
+            return {users,total,totalAll}
     }
 }

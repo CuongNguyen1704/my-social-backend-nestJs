@@ -18,7 +18,7 @@ import { MailModule } from "../mail/mail.module";
         PassportModule,
         JwtModule.register({
             secret: 'key',
-            signOptions: {expiresIn: '1h'}
+            signOptions: {expiresIn: '10h'}
         }),
         TypeOrmModule.forFeature([UserEntity]),
         MailModule

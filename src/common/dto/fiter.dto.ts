@@ -29,18 +29,5 @@ export class FilterDto<T = Record<string, any>> {
   sort?: string;
 
   @IsOptional()
-  // @ValidateNested()
-  // @Type(() => Object)
-  // @Transform(({ obj }) => {
-  //   // Convert 'filters[name]' => filters: { name: ... }
-  //   const filters: Record<string, any> = {};
-  //   for (const key in obj) {
-  //     const match = key.match(/^filters\[(.+)\]$/);
-  //     if (match) {
-  //       filters[match[1]] = obj[key];
-  //     }
-  //   }
-  //   return filters;
-  // })
   filters?: T;
 }

@@ -1,7 +1,7 @@
 import { IsEnum, IsOptional, IsString, ValidateNested } from "class-validator";
 import { GENDER } from "../enums";
 import { FilterDto } from "src/common/dto/fiter.dto";
-import { Type } from "class-transformer";
+import { Transform, Type } from "class-transformer";
 
 
 export class UserFilter {
@@ -15,5 +15,19 @@ export class UserFilter {
 
 }
 
-export class UserFilterDto extends FilterDto<UserFilter>{
+export class UserFilterDto extends FilterDto<UserFilter> {
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => UserFilter)
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return undefined;
+      }
+    }
+    return value;
+  })
+  declare filters?: UserFilter;
 }

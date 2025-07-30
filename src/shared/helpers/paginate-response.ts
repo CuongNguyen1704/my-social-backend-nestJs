@@ -1,5 +1,5 @@
 
-export function paginatedReponse<T>(data: T[],total:number,page:number,limit:number){
+export function paginatedReponse<T>(data: T[],total:number,page:number,limit:number,totalALL:number){
     return {
         data,
         pageInfo: {
@@ -7,6 +7,7 @@ export function paginatedReponse<T>(data: T[],total:number,page:number,limit:num
             pageSize: limit,
             pageCount: Math.ceil(total/limit),
             total,
+            totalALL,
         }
     }
 }
