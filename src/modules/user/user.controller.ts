@@ -22,7 +22,7 @@ import { use } from 'passport';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { RequestWithUser } from '../auth/type/Request-with-user.interface';
 import { UserEntity } from './user.entity';
-import { getManyUserByname } from './dto/getMany-byname.dto';
+import { getManyUserByname } from './dto/get-many-by-name.dto';
 import { UserFilterDto } from './dto/filter-user.dto';
 
 @Controller('users')
