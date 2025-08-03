@@ -23,6 +23,7 @@ import { UserFilterDto } from './dto/filter-user.dto';
 import { UsersRepository } from './repositories/user.repository';
 import { PaginatedReponse } from 'src/common/response/response.interface';
 import { paginatedReponse } from 'src/shared/helpers/paginate-response';
+import { UploadService } from '../upload/upload.service';
 
 @Injectable()
 export class UserService {
@@ -30,17 +31,28 @@ export class UserService {
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
 
-    private readonly RepositoryUser: UsersRepository
+    private readonly RepositoryUser: UsersRepository,
+    private readonly uploadService: UploadService
   ) {}
 
   async createUser(
     userData: CreateUserDto,
+    avatar: Express.Multer.File
   ): Promise<CreateUserDto> {
     const existingUser = await this.userRepository.findOneBy({
       email: userData.email,
     });
     if (existingUser) {
       throw new ConflictException(EXIST_ERROR.EMAIL_EXIT);
+    }
+
+    if(avatar){
+     const imgUrl = await this.uploadService.upload(avatar)
+      if(imgUrl){
+        userData.avatar = imgUrl
+      }else{
+          throw new Error("Upload ảnh thất bại")
+      }
     }
     const user = this.userRepository.create(userData);
     const saveUser = await this.userRepository.save(user);
