@@ -27,12 +27,10 @@ export class UserController {
   // thêm xác thực jwt
   @UseGuards(JwtAuthGuard)
   @Post('create')
-  @UseInterceptors(FileInterceptor('avatar'))
   async createUser(
-    @Body() userDto: CreateUserDto,
-    @UploadedFile() avatar:Express.Multer.File
+    @Body() userDto: CreateUserDto
   ) {
-    const user = await this.userService.createUser(userDto,avatar);
+    const user = await this.userService.createUser(userDto);
     return {
       message: 'Tạo User Thành công',
       data: user,

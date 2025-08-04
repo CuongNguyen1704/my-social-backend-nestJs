@@ -14,10 +14,7 @@ export class UploadController {
 
     @Delete('')
     async delete(@Query('key') fullUrl:string){
-        const key = fullUrl.split('/').pop();
-        if(key){
-            await this.uploadService.delete(key);
-        }
+        await this.uploadService.delete(fullUrl)
         return {
             message: "File deleted successfully"
         }

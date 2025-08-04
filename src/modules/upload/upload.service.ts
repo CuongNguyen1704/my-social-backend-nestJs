@@ -35,7 +35,11 @@ export class UploadService {
 
     // https://bucket10do.s3.amazonaws.com/1754221212686_iPhone-17-Pro-on-Desk-Centered-1.jpg
 
-    async delete(key:string):Promise<void>{
+    async delete(fullUrl:string):Promise<void>{
+        const key = fullUrl.split('/').pop();
+            if(!key){
+                throw new Error('Ivalid s3 key')
+            }
             await this.s3.deleteObject({
                 Bucket:this.config.bucket,
                 Key: key

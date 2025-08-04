@@ -36,23 +36,13 @@ export class UserService {
   ) {}
 
   async createUser(
-    userData: CreateUserDto,
-    avatar: Express.Multer.File
+    userData: CreateUserDto
   ): Promise<CreateUserDto> {
     const existingUser = await this.userRepository.findOneBy({
       email: userData.email,
     });
     if (existingUser) {
       throw new ConflictException(EXIST_ERROR.EMAIL_EXIT);
-    }
-
-    if(avatar){
-     const imgUrl = await this.uploadService.upload(avatar)
-      if(imgUrl){
-        userData.avatar = imgUrl
-      }else{
-          throw new Error("Upload ảnh thất bại")
-      }
     }
     const user = this.userRepository.create(userData);
     const saveUser = await this.userRepository.save(user);
