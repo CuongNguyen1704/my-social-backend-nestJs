@@ -6,16 +6,18 @@ import { UserService } from "./user.service";
 import { JwtAuthGuard } from "../guards/jwt-auth.guard";
 import { LocalAuthGuard } from "../guards/local-auth.guard";
 import { UsersRepository } from "./repositories/user.repository";
+import { UploadModule } from "../upload/upload.module";
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([UserEntity])
+        TypeOrmModule.forFeature([UserEntity]),
+        UploadModule
     ],
     controllers: [UserController],
     providers: [UserService,JwtAuthGuard,LocalAuthGuard,UsersRepository],
     exports: [UserService]
 })
 
-export class UserModul {
+export class UserModule {
 
 }

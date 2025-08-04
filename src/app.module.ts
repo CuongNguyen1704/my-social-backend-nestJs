@@ -3,24 +3,31 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './modules/user/user.entity';
-import { UserModul } from './modules/user/user.module';
+import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { MailModule } from './modules/mail/mail.module';
+import { ConfigModule } from '@nestjs/config';
+import 'dotenv/config';
+import { env } from '@usefultools/utils';
+import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username:'postgres',
-      password:'123456',
-      database:'mysocail_backend_nestjs',
+      host: env.getAsStr('DB_HOST'),
+      port: env.getAsInt('DB_PORT'),
+      username: env.getAsStr('DB_USERNAME'),
+      password: env.getAsStr('DB_PASSWORD'),
+      database: env.getAsStr('DB_DATABASE'),
       entities: [UserEntity],
       synchronize:true
       
     }),
-    UserModul,AuthModule,MailModule
+    UserModule,AuthModule,MailModule,UploadModule
   ],
   controllers: [AppController],
   providers: [AppService],

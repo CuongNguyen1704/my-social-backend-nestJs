@@ -7,7 +7,9 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -15,6 +17,7 @@ import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { UserEntity } from './user.entity';
 import { getManyUserByname } from './dto/get-many-by-name.dto';
 import { UserFilterDto } from './dto/filter-user.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('users')
 export class UserController {
@@ -25,7 +28,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Post('create')
   async createUser(
-    @Body() userDto: CreateUserDto,
+    @Body() userDto: CreateUserDto
   ) {
     const user = await this.userService.createUser(userDto);
     return {
