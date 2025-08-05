@@ -2,10 +2,12 @@ import {
   BeforeInsert,
   Column,
   Entity,
+  OneToMany,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { GENDER } from './enums';
 import { BaseEntity } from 'src/common/entities/base.entity';
+import { PostEntity } from '../post/post.entity';
 
 @Entity('users')
 export class UserEntity extends BaseEntity {
@@ -54,6 +56,9 @@ export class UserEntity extends BaseEntity {
 
   @Column({nullable:true})
   phone:string
+
+  @OneToMany(()=> PostEntity, (post) => post.user)
+  posts: PostEntity[]
 
 
 }
