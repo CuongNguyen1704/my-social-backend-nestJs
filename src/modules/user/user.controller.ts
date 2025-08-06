@@ -67,7 +67,7 @@ export class UserController {
   }
 
   
-  @UseGuards()
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async softDelete(@Param('id') id:number){
         await this.userService.softDelete(id)

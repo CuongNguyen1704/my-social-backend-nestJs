@@ -12,7 +12,8 @@ import { env } from '@usefultools/utils';
 import { UploadModule } from './modules/upload/upload.module';
 import { PostModule } from './modules/post/post.module';
 import { PostEntity } from './modules/post/post.entity';
-import { ImageEntity } from './modules/upload/image.entity';
+import { ImageEntity } from './modules/image/image.entity';
+import { ImageModule } from './modules/image/image.module';
 
 @Module({
   imports: [
@@ -30,7 +31,7 @@ import { ImageEntity } from './modules/upload/image.entity';
       synchronize:true
       
     }),
-    UserModule,AuthModule,MailModule,UploadModule,PostModule
+    UserModule,AuthModule,MailModule,UploadModule,PostModule,ImageModule
   ],
   controllers: [AppController],
   providers: [AppService],
