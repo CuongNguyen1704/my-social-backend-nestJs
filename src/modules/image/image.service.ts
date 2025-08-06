@@ -36,4 +36,8 @@ export class ImageService {
 
    return await this.imageRepository.save(ImageEntities);
   }
+
+async deleteImagesByPostId(post_id: number) {
+  await this.imageRepository.delete({ post: { id: post_id } });
+}
 }
