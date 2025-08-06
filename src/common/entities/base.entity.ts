@@ -1,4 +1,4 @@
-import { Delete } from "@nestjs/common";
+
 import { CreateDateColumn, DeleteDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 
@@ -9,7 +9,7 @@ export class BaseEntity {
     @CreateDateColumn()
     createAt: Date
 
-    @UpdateDateColumn()
+    @UpdateDateColumn() 
     updateAt: Date
 
     @DeleteDateColumn()

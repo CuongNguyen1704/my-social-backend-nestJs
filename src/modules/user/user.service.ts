@@ -144,4 +144,16 @@ export class UserService {
      })
      return paginatedReponse(transformerUsers,total,userFilterDto.page ?? 1,userFilterDto.limit??3)
   }
+
+  async findById(user_id:number){
+       const user = await this.userRepository.findOne({
+          where:{
+            id: user_id
+          }
+       })
+       if(!user){
+          throw new NotFoundException("User không tồn tại")
+       }
+       return user
+  }
 }
