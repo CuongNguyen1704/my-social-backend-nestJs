@@ -15,7 +15,7 @@ export class ImageService {
 
   ) {}
 
-  async uploadImages(
+  async createImage(
     images: Express.Multer.File[],
     post: PostEntity,
   ): Promise<ImageEntity[]> {

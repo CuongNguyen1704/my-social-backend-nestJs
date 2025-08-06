@@ -14,12 +14,7 @@ export class PostService {
     @InjectRepository(PostEntity)
     private readonly postRepository: Repository<PostEntity>,
 
-    @InjectRepository(ImageEntity)
-    private readonly imageRepository: Repository<ImageEntity>,
-
     private readonly userService: UserService,
-    private readonly uploadSevice: UploadService,
-
     private readonly imageService:ImageService
   ) {}
 
@@ -35,7 +30,7 @@ export class PostService {
     });
     const savePost = await this.postRepository.save(post);
 
-    const imageEntities = await this.imageService.uploadImages(images, savePost);
+    const imageEntities = await this.imageService.createImage(images, savePost);
 
     return {
       ...savePost,
