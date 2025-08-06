@@ -6,6 +6,7 @@ import { CreatePostDto } from './dto/create.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { UploadService } from '../upload/upload.service';
+import { ImageService } from '../image/image.service';
 
 @Injectable()
 export class PostService {
@@ -18,6 +19,8 @@ export class PostService {
 
     private readonly userService: UserService,
     private readonly uploadSevice: UploadService,
+
+    private readonly imageService:ImageService
   ) {}
 
   async create(
@@ -32,27 +35,11 @@ export class PostService {
     });
     const savePost = await this.postRepository.save(post);
 
-    const urls: string[] = [];
-    for (const file of images) {
-      const url = await this.uploadSevice.upload(file);
-      if(url){
-        urls.push(url);
-      }
-      
-    }
-
-    const ImageEntities = urls.map((url) => {
-      const image = new ImageEntity();
-      image.url = url, 
-      image.post = savePost;
-      return image;
-    });
-
-    await this.imageRepository.save(ImageEntities);
+    const imageEntities = await this.imageService.uploadImages(images, savePost);
 
     return {
       ...savePost,
-      images: ImageEntities,
+      images: imageEntities,
     };
   }
 }
