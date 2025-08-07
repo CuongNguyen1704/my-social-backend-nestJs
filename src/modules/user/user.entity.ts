@@ -8,6 +8,7 @@ import * as bcrypt from 'bcrypt';
 import { GENDER } from './enums';
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { PostEntity } from '../post/post.entity';
+import { CommentEntity } from '../comment/comment.entity';
 
 @Entity('users')
 export class UserEntity extends BaseEntity {
@@ -59,6 +60,9 @@ export class UserEntity extends BaseEntity {
 
   @OneToMany(()=> PostEntity, (post) => post.user)
   posts: PostEntity[]
+
+  @OneToMany(()=>CommentEntity,(comment)=>comment.user)
+  comments:CommentEntity[]
 
 
 }
