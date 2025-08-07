@@ -13,6 +13,7 @@ import { UploadService } from '../upload/upload.service';
 import { ImageService } from '../image/image.service';
 import { UpdatePostDto } from './dto/update.dto';
 import { url } from 'inspector';
+import { error } from 'console';
 
 @Injectable()
 export class PostService {
@@ -63,14 +64,13 @@ export class PostService {
       throw new BadRequestException('Bạn không có quyền sửa bài viết này');
     }
 
-   // post.content = updateDto.content ?? post.content;
-    console.log('error 0')
+  
     if(updateDto.imageIdDelete?.length){
       // chỗ này phải là mảng ids muốn xóa
         await this.imageService.deleteImgage(updateDto.imageIdDelete,post_id)
+
     }
-
-
+    
     let saveImage : ImageEntity[] = []
     if(Array.isArray(images) && images.length > 0){
          saveImage = await this.imageService.createImage(images,post)

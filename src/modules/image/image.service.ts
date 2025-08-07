@@ -9,10 +9,9 @@ import { UploadService } from '../upload/upload.service';
 export class ImageService {
   constructor(
     @InjectRepository(ImageEntity)
-    private readonly imageRepository:Repository<ImageEntity>,
+    private readonly imageRepository: Repository<ImageEntity>,
 
-    private readonly uploadSevice:UploadService
-
+    private readonly uploadSevice: UploadService,
   ) {}
 
   async createImage(
@@ -35,13 +34,17 @@ export class ImageService {
       return image;
     });
 
-   return await this.imageRepository.save(ImageEntities);
+    return await this.imageRepository.save(ImageEntities);
   }
 
-  async deleteImgage(imageIdDelete:number[],post_id:number){
-        await this.imageRepository.delete({
-            id:In(imageIdDelete),
-            post:{id:post_id}
-        }) 
+  async deleteImgage(imageIdDelete: number[], post_id: number) {
+    const images = await this.imageRepository.find({
+      where: {
+        id: In(imageIdDelete),
+        post_id: post_id,
+      },
+    });
+
+    await this.imageRepository.remove(images);
   }
 }
