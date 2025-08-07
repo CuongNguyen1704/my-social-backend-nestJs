@@ -86,4 +86,18 @@ export class PostService {
     }
   
   }
+
+  async deatail(id:number){
+      const postDeatail = await this.postRepository.findOne(
+        {
+          where:{id:id},
+          relations:['images','user']
+        }
+      )
+      if(!postDeatail){
+          throw new NotFoundException("Không có bài viết nào thỏa mãn")
+      }
+      
+      return postDeatail
+  }
 }

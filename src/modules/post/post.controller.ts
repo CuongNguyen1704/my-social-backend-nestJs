@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, Put, Request, UploadedFile, UploadedFiles, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Put, Request, UploadedFile, UploadedFiles, UseGuards, UseInterceptors } from "@nestjs/common";
 import { CreatePostDto } from "./dto/create.dto";
 import { PostService } from "./post.service";
 import { JwtAuthGuard } from "../guards/jwt-auth.guard";
@@ -27,6 +27,13 @@ export class PostController {
     async update(@Body() updateDto:UpdatePostDto,@Request() req:RequestWithUser,@UploadedFiles() images:Express.Multer.File[],@Param('id') post_id:number){
         const updatePost = await this.postService.update(updateDto,req.user.id,images,post_id)
         return updatePost
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get(':id')
+    async deatail(@Param('id') id:number){
+        const post = await this.postService.deatail(id)
+        return post
     }
 
 
