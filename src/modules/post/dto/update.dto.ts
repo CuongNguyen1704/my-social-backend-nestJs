@@ -1,4 +1,5 @@
-import { IsOptional, IsString } from "class-validator";
+import { Type } from "class-transformer";
+import { IsArray, IsOptional, IsString } from "class-validator";
 
 export class UpdatePostDto {
 
@@ -7,6 +8,6 @@ export class UpdatePostDto {
     content:string
 
     @IsOptional()
-    @IsString()
-    images:string[]
+    @Type(()=>Number)
+    imageIdDelete: number[];
 }

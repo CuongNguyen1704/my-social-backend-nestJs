@@ -7,7 +7,10 @@ export class ImageEntity extends BaseEntity {
   @Column()
   url: string;
 
-  @ManyToOne(() => PostEntity, (post) => post.images, { onDelete: 'CASCADE' })
+  @Column({ name: 'post_id', nullable: false })
+  post_id: number;
+
+  @ManyToOne(() => PostEntity, (post) => post.images, { onDelete: 'CASCADE',nullable:false })
   @JoinColumn({ name: 'post_id' })
   post: PostEntity;
 }

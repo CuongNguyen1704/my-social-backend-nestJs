@@ -63,34 +63,27 @@ export class PostService {
       throw new BadRequestException('Bạn không có quyền sửa bài viết này');
     }
 
-    let imageEntities: ImageEntity[] = [];
-    if (Array.isArray(updateDto.images)) {
-      imageEntities = updateDto.images.map((url) => {
-        const image = new ImageEntity();
-        image.url = url;
-        image.post = post;
-        return image;
-      });
+   // post.content = updateDto.content ?? post.content;
+    console.log('error 0')
+    if(updateDto.imageIdDelete?.length){
+      // chỗ này phải là mảng ids muốn xóa
+        await this.imageService.deleteImgage(updateDto.imageIdDelete,post_id)
     }
 
-    post.content = updateDto.content ?? post.content;
 
-    if (images && images.length > 0) {
-      await this.imageService.deleteImagesByPostId(post_id);
-
-      const urls = await Promise.all(
-        images.map((file) => this.uploadService.upload(file)),
-      );
-      const imageEntities = urls.map((url) => {
-        const image = new ImageEntity();
-        image.url = url as string;
-        image.post = post;
-        return image;
-      });
-
-      post.images = imageEntities;
+    let saveImage : ImageEntity[] = []
+    if(Array.isArray(images) && images.length > 0){
+         saveImage = await this.imageService.createImage(images,post)
     }
 
-    await this.postRepository.save(post);
+     // chỗ này m đang lưu bài post cũ gồm cả ảnh cũ, nhưng ảnh cũ bị xóa ở đoạn trên nên gây lỗi
+      await this.postRepository.update(post.id,{ content: updateDto.content ?? post.content });
+
+
+    return {
+        ...post,
+        images:saveImage
+    }
+  
   }
 }

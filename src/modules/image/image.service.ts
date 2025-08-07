@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PostEntity } from '../post/post.entity';
 import { ImageEntity } from './image.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { UploadService } from '../upload/upload.service';
 
 @Injectable()
@@ -19,6 +19,7 @@ export class ImageService {
     images: Express.Multer.File[],
     post: PostEntity,
   ): Promise<ImageEntity[]> {
+    // console.log("🚀 ~ ImageService ~ createImage ~ post:", post)
     const urls: string[] = [];
     for (const file of images) {
       const url = await this.uploadSevice.upload(file);
@@ -29,15 +30,18 @@ export class ImageService {
 
     const ImageEntities = urls.map((url) => {
       const image = new ImageEntity();
-      image.url = url, 
-      image.post = post;
+      image.url = url;
+      image.post_id = post.id;
       return image;
     });
 
    return await this.imageRepository.save(ImageEntities);
   }
 
-async deleteImagesByPostId(post_id: number) {
-  await this.imageRepository.delete({ post: { id: post_id } });
-}
+  async deleteImgage(imageIdDelete:number[],post_id:number){
+        await this.imageRepository.delete({
+            id:In(imageIdDelete),
+            post:{id:post_id}
+        }) 
+  }
 }
