@@ -14,7 +14,6 @@ export class CommentController{
     @Post()
     async create(@Body() commentDto:CreateCommentDto,@Request() req:RequestWithUser){
         const comment = await  this.commentService.create(commentDto,req.user.id)
-
         return comment
     }
 }

@@ -120,7 +120,7 @@ export class PostService {
       order: {
         createAt: 'DESC',
       },
-      relations: ['user', 'comments', 'images'],
+      relations: ['user', 'images'],
     });
     
     if(!getPostByUser || getPostByUser.length === 0){

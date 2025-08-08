@@ -1,5 +1,5 @@
 import { BaseEntity } from "src/common/entities/base.entity";
-import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { UserEntity } from "../user/user.entity";
 import { PostEntity } from "../post/post.entity";
 
@@ -17,6 +17,7 @@ export class CommentEntity extends BaseEntity{
     @Column({name:'user_id',nullable:false})
     user_id:number
     
+    
     @ManyToOne(()=> UserEntity, (user) => user.comments)
     @JoinColumn({name:'user_id'})
     user:UserEntity
@@ -25,6 +26,14 @@ export class CommentEntity extends BaseEntity{
     @JoinColumn({name:'post_id'})
     post:PostEntity
 
+    @ManyToOne(()=>CommentEntity, (comment)=>comment.replies,{nullable:true})
+    @JoinColumn({name:'parent_id'})
+    parent:CommentEntity
+
+    @OneToMany(()=>CommentEntity,(comment)=>comment.parent)
+    replies:CommentEntity[]
+
+    
 
 
 

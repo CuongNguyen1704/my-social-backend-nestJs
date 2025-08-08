@@ -10,4 +10,8 @@ export class CreateCommentDto {
     @IsNumber()
     post_id:number
 
+    @IsNumber()
+    parent_id?:number
+    
+
 }
