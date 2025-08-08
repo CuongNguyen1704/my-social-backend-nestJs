@@ -11,5 +11,6 @@ import { UserModule } from '../user/user.module';
   imports: [TypeOrmModule.forFeature([PostEntity]), ImageModule,UploadModule,UserModule],
   controllers: [PostController],
   providers: [PostService],
+  exports:[PostService]
 })
 export class PostModule {}

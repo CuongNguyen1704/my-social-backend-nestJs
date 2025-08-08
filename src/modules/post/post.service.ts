@@ -64,40 +64,69 @@ export class PostService {
       throw new BadRequestException('Bạn không có quyền sửa bài viết này');
     }
 
-  
-    if(updateDto.imageIdDelete?.length){
+    if (updateDto.imageIdDelete?.length) {
       // chỗ này phải là mảng ids muốn xóa
-        await this.imageService.deleteImgage(updateDto.imageIdDelete,post_id)
-
-    }
-    
-    let saveImage : ImageEntity[] = []
-    if(Array.isArray(images) && images.length > 0){
-         saveImage = await this.imageService.createImage(images,post)
+      await this.imageService.deleteImgage(updateDto.imageIdDelete, post_id);
     }
 
-     // chỗ này m đang lưu bài post cũ gồm cả ảnh cũ, nhưng ảnh cũ bị xóa ở đoạn trên nên gây lỗi
-      await this.postRepository.update(post.id,{ content: updateDto.content ?? post.content });
+    let saveImage: ImageEntity[] = [];
+    if (Array.isArray(images) && images.length > 0) {
+      saveImage = await this.imageService.createImage(images, post);
+    }
 
+    // chỗ này m đang lưu bài post cũ gồm cả ảnh cũ, nhưng ảnh cũ bị xóa ở đoạn trên nên gây lỗi
+    await this.postRepository.update(post.id, {
+      content: updateDto.content ?? post.content,
+    });
 
     return {
-        ...post,
-        images:saveImage
-    }
-  
+      ...post,
+      images: saveImage,
+    };
   }
 
-  async deatail(id:number){
-      const postDeatail = await this.postRepository.findOne(
-        {
-          where:{id:id},
-          relations:['images','user']
-        }
-      )
-      if(!postDeatail){
-          throw new NotFoundException("Không có bài viết nào thỏa mãn")
-      }
-      
-      return postDeatail
+  async deatail(id: number) {
+    const postDeatail = await this.postRepository.findOne({
+      where: { id: id },
+      relations: ['images', 'user'],
+    });
+    if (!postDeatail) {
+      throw new NotFoundException('Không có bài viết nào thỏa mãn');
+    }
+
+    return postDeatail;
+  }
+
+  async findById(post_id: number) {
+    const checkPost = await this.postRepository.findOne({
+      where: {
+        id: post_id,
+      },
+    });
+
+    if (!checkPost) {
+      throw new NotFoundException('Không có bài viết nào hợp lệ');
+    }
+
+    return checkPost;
+  }
+
+  async getPostByUser(id: number) {
+    await this.userService.findById(id);
+    const getPostByUser = await this.postRepository.find({
+      where: {
+        user: { id: id },
+      },
+      order: {
+        createAt: 'DESC',
+      },
+      relations: ['user', 'comments', 'images'],
+    });
+    
+    if(!getPostByUser || getPostByUser.length === 0){
+        return {message: "Người dùng này chưa có bài viết nào cả"}
+    }
+
+    return getPostByUser;
   }
 }
