@@ -27,8 +27,8 @@ export class CommentController{
 
     @UseGuards(JwtAuthGuard)
     @Get()
-    async ListReplyComment(@Query() paginationQueryDto:PaginationQueryDto){
-        const listReply = await this.commentService.listReply(paginationQueryDto)
+    async ListReplyComment(){
+        const listReply = await this.commentService.listReply()
         return listReply
     }
 

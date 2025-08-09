@@ -68,21 +68,8 @@ export class CommentService {
     };
   }
 
-  async listReply(paginationQuery: PaginationQueryDto) {
-    const { page = 1, limit = 25 } = paginationQuery;
-    const [data, total] = await this.commentRepository.findAndCount({
-      where: { parent: Not(IsNull()) },
-      skip: (page - 1) * limit,
-      take: limit,
-      order: { createAt: 'DESC' },
-    });
-
-    return {
-      data,
-      page,
-      limit,
-      total,
-      lastPage: Math.ceil(total / limit),
-    };
+  async listReply() {
+    const listReply = await this.commentRepository.find({where:{parent:Not(IsNull())}})
+    return listReply
   }
 }
