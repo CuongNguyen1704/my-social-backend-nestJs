@@ -26,9 +26,9 @@ export class CommentController{
     }
 
     @UseGuards(JwtAuthGuard)
-    @Get()
-    async ListReplyComment(){
-        const listReply = await this.commentService.listReply()
+    @Get('parent-id/:parent_id')
+    async ListReplyComment(@Param('parent_id') parent_id: number){
+        const listReply = await this.commentService.listReply(parent_id)
         return listReply
     }
 

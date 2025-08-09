@@ -68,8 +68,11 @@ export class CommentService {
     };
   }
 
-  async listReply() {
-    const listReply = await this.commentRepository.find({where:{parent:Not(IsNull())}})
+  async listReply(parent_id:number) {
+    const listReply = await this.commentRepository.find({
+      where:{parent:{id:parent_id}},
+      relations:['user']
+    })
     return listReply
   }
 }
