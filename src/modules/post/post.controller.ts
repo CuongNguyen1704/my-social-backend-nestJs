@@ -36,5 +36,13 @@ export class PostController {
         return post
     }
 
+    @UseGuards(JwtAuthGuard)
+    @Get('by-user/:id')
+    async getPostByUser(@Param('id') id:number){
+        const postByUser = await this.postService.getPostByUser(id)
+        return postByUser
+    }
+
+
 
 }

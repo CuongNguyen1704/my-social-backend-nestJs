@@ -1,0 +1,78 @@
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CommentEntity } from './comment.entity';
+import { IsNull, Not, Repository } from 'typeorm';
+import { CreateCommentDto } from './dto/create-comment.dto';
+import { UserService } from '../user/user.service';
+import { PostService } from '../post/post.service';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+
+@Injectable()
+export class CommentService {
+  constructor(
+    @InjectRepository(CommentEntity)
+    private readonly commentRepository: Repository<CommentEntity>,
+    private readonly userService: UserService,
+    private readonly postService: PostService,
+  ) {}
+
+  async create(commentDto: CreateCommentDto, user_id: number) {
+    await this.postService.findById(commentDto.post_id);
+    await this.userService.findById(user_id);
+
+    let parentComment: CommentEntity | null = null;
+    if (commentDto.parent_id) {
+      parentComment = await this.commentRepository.findOne({
+        where: { id: commentDto.parent_id },
+        relations: ['post'],
+      });
+      if (!parentComment) {
+        throw new NotFoundException('Trả lời comment không tồn tại');
+      }
+      if (parentComment.post.id !== commentDto.post_id) {
+        throw new BadRequestException(
+          'Comment cha phải cùng post với comment hiện tại',
+        );
+      }
+    }
+
+    const createComment = this.commentRepository.create({
+      content: commentDto.content,
+      post_id: commentDto.post_id,
+      user_id: user_id,
+      parent: parentComment || undefined,
+    });
+
+    const saveComment = await this.commentRepository.save(createComment);
+
+    return saveComment;
+  }
+
+  async listCommentByPost(
+    post_id: number,
+    paginationQuery: PaginationQueryDto,
+  ) {
+    const { page = 1, limit = 10 } = paginationQuery;
+    const [data, total] = await this.commentRepository.findAndCount({
+      where: { post_id: post_id },
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { createAt: 'DESC' },
+    });
+    return {
+      data,
+      page,
+      limit,
+      total,
+      lastPage: Math.ceil(total / limit),
+    };
+  }
+
+  async listReply(parent_id:number) {
+    const listReply = await this.commentRepository.find({
+      where:{parent:{id:parent_id}},
+      relations:['user']
+    })
+    return listReply
+  }
+}
