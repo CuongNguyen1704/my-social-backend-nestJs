@@ -9,6 +9,7 @@ import { GENDER } from './enums';
 import { BaseEntity } from 'src/common/entities/base.entity';
 import { PostEntity } from '../post/post.entity';
 import { CommentEntity } from '../comment/comment.entity';
+import { LikeEntity } from '../like/like.entity';
 
 @Entity('users')
 export class UserEntity extends BaseEntity {
@@ -64,5 +65,7 @@ export class UserEntity extends BaseEntity {
   @OneToMany(()=>CommentEntity,(comment)=>comment.user)
   comments:CommentEntity[]
 
+  @OneToMany(()=> LikeEntity,(like)=>like.user)
+  likes:LikeEntity[]
 
 }
