@@ -13,7 +13,7 @@ export class PostEntity extends BaseEntity {
   @Column({ nullable: true,default:0 })
   comment_count: number;
 
-  @Column({ nullable: true,default:0 })
+  @Column({default:0 ,name:'like_count'}) 
   like_count: number;
 
   @ManyToOne(() => UserEntity, (user) => user.posts)

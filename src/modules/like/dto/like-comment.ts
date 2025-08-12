@@ -1,15 +1,16 @@
 import { IsEnum, IsNotEmpty, IsNumber, IsString } from "class-validator";
-import { POST} from "src/modules/user/enums";
+import { RelatedType} from "src/modules/user/enums";
 
-export class CreatePostLikeDto {
+export class CreateLikeCommentDto {
     
     @IsString()
     @IsNotEmpty()
-    @IsEnum(POST)
+    @IsEnum(RelatedType)
     related_type:string
 
     @IsNotEmpty()
     @IsNumber()
     related_id:number
 
+    
 }

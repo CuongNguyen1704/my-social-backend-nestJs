@@ -84,4 +84,12 @@ export class CommentService {
         throw new NotFoundException("Không tồn tại comment ")
       }
   }
+
+  async decrementCommentLike(related_id:number){
+      await this.commentRepository.decrement({id:related_id},'like_count',1)
+  }
+
+  async incrementCommentLike(related_id:number){
+      await this.commentRepository.increment({id:related_id},'like_count',1)
+  }
 }
