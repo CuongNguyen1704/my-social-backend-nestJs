@@ -10,6 +10,7 @@ import { CreatePostLikeDto } from './dto/like-post.dto';
 import { PostService } from '../post/post.service';
 import { CommentService } from '../comment/comment.service';
 import { CreateLikeCommentDto } from './dto/like-comment';
+import { RelatedType } from '../user/enums';
 
 @Injectable()
 export class LikeService {
@@ -24,7 +25,7 @@ export class LikeService {
     await this.postService.findById(likeDto.related_id);
     const existingLike = await this.likeRepository.findOne({
       where: {
-        related_type: 'post',
+        related_type: RelatedType.POST,
         related_id: likeDto.related_id,
         user: { id: user_id },
       },
@@ -38,7 +39,7 @@ export class LikeService {
     }
 
     const newLike = this.likeRepository.create({
-      related_type: 'post',
+      related_type: RelatedType.POST,
       related_id: likeDto.related_id,
       user: { id: user_id },
     });
@@ -53,7 +54,7 @@ export class LikeService {
     const existingLike = await this.likeRepository.findOne({
       where: {
         related_id: commentDto.related_id,
-        related_type: 'comment',
+        related_type:RelatedType.COMMENT,
         user_id: user_id,
       },
       relations: ['user'],
@@ -67,7 +68,7 @@ export class LikeService {
 
     const newLikeComment = this.likeRepository.create({
       related_id: commentDto.related_id,
-      related_type: 'comment',
+      related_type: RelatedType.COMMENT,
       user: { id: user_id },
     });
 
