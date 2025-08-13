@@ -44,6 +44,15 @@ export class CommentService {
     });
 
     const saveComment = await this.commentRepository.save(createComment);
+
+    if(commentDto.parent_id){
+        await this.commentRepository.increment(
+          {id:commentDto.parent_id},
+          'reply_count',
+          1
+        )
+    }
+
     await this.postService.incrementCommentCount(commentDto.post_id)
     return saveComment;
   }
@@ -57,7 +66,6 @@ export class CommentService {
       .createQueryBuilder('comment')
       .where('comment.post_id = :post_id',{post_id})
       .andWhere('comment.parent_id IS NULL')
-      .loadRelationCountAndMap('comment.replyCount','comment.replies')
       .leftJoinAndSelect('comment.user','user')
       .orderBy('comment.createAt','DESC')
       .skip((page - 1) * limit)
@@ -97,4 +105,5 @@ export class CommentService {
   async incrementCommentLike(id:number){
       await this.commentRepository.increment({id:id},'like_count',1)
   }
+
 }

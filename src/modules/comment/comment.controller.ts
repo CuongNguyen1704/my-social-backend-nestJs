@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query, Request, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Query, Request, UseGuards } from "@nestjs/common";
 import { CommentService } from "./comment.service";
 import { JwtAuthGuard } from "../guards/jwt-auth.guard";
 import { CreateCommentDto } from "./dto/create-comment.dto";
@@ -31,6 +31,8 @@ export class CommentController{
         const listReply = await this.commentService.listReply(parent_id)
         return listReply
     }
+
+    
 
 
 }
