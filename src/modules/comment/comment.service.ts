@@ -85,11 +85,11 @@ export class CommentService {
       }
   }
 
-  async decrementCommentLike(related_id:number){
-      await this.commentRepository.decrement({id:related_id},'like_count',1)
+  async decrementCommentLike(id:number){
+      await this.commentRepository.decrement({id:id},'like_count',1)
   }
 
-  async incrementCommentLike(related_id:number){
-      await this.commentRepository.increment({id:related_id},'like_count',1)
+  async incrementCommentLike(id:number){
+      await this.commentRepository.increment({id:id},'like_count',1)
   }
 }

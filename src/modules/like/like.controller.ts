@@ -6,7 +6,7 @@ import { RequestWithUser } from "../auth/type/Request-with-user.interface";
 import { CreateLikeCommentDto } from "./dto/like-comment";
 
 
-@Controller('like')
+@Controller('likes')
 
 export class LikeController{
 

@@ -11,7 +11,6 @@ import { PostService } from '../post/post.service';
 import { CommentService } from '../comment/comment.service';
 import { CreateLikeCommentDto } from './dto/like-comment';
 
-
 @Injectable()
 export class LikeService {
   constructor(
@@ -22,66 +21,58 @@ export class LikeService {
   ) {}
 
   async PostLike(likeDto: CreatePostLikeDto, user_id: number) {
-    if (likeDto.related_type == 'post') {
-      await this.postService.findById(likeDto.related_id);
-      const existingLike = await this.likeRepository.findOne({
-        where: {
-          related_type: likeDto.related_type,
-          related_id: likeDto.related_id,
-          user: { id: user_id },
-        },
-        relations: ['user'],
-      });
-
-      if (existingLike){
-        await this.likeRepository.delete(existingLike.id);
-        await this.postService.decrementPostLike(likeDto.related_id)
-        return { message: 'Unlike successfully' };
-      }
-      
-      const newLike = this.likeRepository.create({
-        related_type: likeDto.related_type,
+    await this.postService.findById(likeDto.related_id);
+    const existingLike = await this.likeRepository.findOne({
+      where: {
+        related_type: 'post',
         related_id: likeDto.related_id,
         user: { id: user_id },
-      });
+      },
+      relations: ['user'],
+    });
 
-      const saveLikePost = await this.likeRepository.save(newLike);
-      await this.postService.incrementPostLike(likeDto.related_id)
-      return saveLikePost;
+    if (existingLike) {
+      await this.likeRepository.delete(existingLike.id);
+      await this.postService.decrementPostLike(likeDto.related_id);
+      return { message: 'Unlike successfully' };
     }
-    throw new NotFoundException('related_type phải là post');
+
+    const newLike = this.likeRepository.create({
+      related_type: 'post',
+      related_id: likeDto.related_id,
+      user: { id: user_id },
+    });
+
+    const saveLikePost = await this.likeRepository.save(newLike);
+    await this.postService.incrementPostLike(likeDto.related_id);
+    return saveLikePost;
   }
 
   async CommentLike(commentDto: CreateLikeCommentDto, user_id: number) {
-    if (commentDto.related_type == 'comment') {
-      await this.commentService.findById(commentDto.related_id);
-      const existingLike = await this.likeRepository.findOne({
-        where: {
-          related_id: commentDto.related_id,
-          related_type: commentDto.related_type,
-          user_id: user_id,
-        },
-        relations: ['user'],
-      });
-
-      if (existingLike) {
-        await this.likeRepository.delete(existingLike.id);
-        await this.commentService.decrementCommentLike(commentDto.related_id)
-        return { message: 'Unlike Successfully' };
-      }
-
-      const newLikeComment = this.likeRepository.create({
+    await this.commentService.findById(commentDto.related_id);
+    const existingLike = await this.likeRepository.findOne({
+      where: {
         related_id: commentDto.related_id,
-        related_type: commentDto.related_type,
-        user: { id: user_id },
-      });
+        related_type: 'comment',
+        user_id: user_id,
+      },
+      relations: ['user'],
+    });
 
-      const saveLike = await this.likeRepository.save(newLikeComment);
-      await this.commentService.incrementCommentLike(commentDto.related_id)
-      return saveLike;
+    if (existingLike) {
+      await this.likeRepository.delete(existingLike.id);
+      await this.commentService.decrementCommentLike(commentDto.related_id);
+      return { message: 'Unlike Successfully' };
     }
 
-    throw new NotFoundException("related_type phải là comment")
-  }
+    const newLikeComment = this.likeRepository.create({
+      related_id: commentDto.related_id,
+      related_type: 'comment',
+      user: { id: user_id },
+    });
 
+    const saveLike = await this.likeRepository.save(newLikeComment);
+    await this.commentService.incrementCommentLike(commentDto.related_id);
+    return saveLike;
+  }
 }
