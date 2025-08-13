@@ -62,16 +62,19 @@ export class CommentService {
     paginationQuery: PaginationQueryDto,
   ) {
     const { page = 1, limit = 10 } = paginationQuery;
-    const queryBuider = this.commentRepository
-      .createQueryBuilder('comment')
-      .where('comment.post_id = :post_id',{post_id})
-      .andWhere('comment.parent_id IS NULL')
-      .leftJoinAndSelect('comment.user','user')
-      .orderBy('comment.createAt','DESC')
-      .skip((page - 1) * limit)
-      .take(limit)
 
-    const [data,total] = await queryBuider.getManyAndCount()
+    const [data,total] = await this.commentRepository.findAndCount({
+      where:{
+          post_id,
+          parent_id: IsNull()
+      },
+      relations:['user'],
+      order:{
+        createAt:'DESC'
+      },
+      skip:(page - 1) * limit,
+      take:limit
+    })
     return {
       data,
       page,
