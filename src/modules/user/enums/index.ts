@@ -3,3 +3,8 @@ export enum GENDER {
     MALE = 'male',
     OTHER = 'other'
 }
+
+export enum RelatedType {
+    POST = 'post',
+    COMMENT = 'comment'
+}

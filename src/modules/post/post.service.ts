@@ -129,4 +129,12 @@ export class PostService {
 
     return getPostByUser;
   }
+
+  async decrementPostLike(related_id:number){
+      await this.postRepository.decrement({id:related_id},'like_count',1)
+  }
+
+  async incrementPostLike(related_id:number){
+      await this.postRepository.increment({id:related_id},'like_count',1)
+  }
 }

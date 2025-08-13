@@ -16,6 +16,8 @@ import { ImageEntity } from './modules/image/image.entity';
 import { ImageModule } from './modules/image/image.module';
 import { CommentModule } from './modules/comment/conmment.module';
 import { CommentEntity } from './modules/comment/comment.entity';
+import { LikeModule } from './modules/like/like.module';
+import { LikeEntity } from './modules/like/like.entity';
 
 @Module({
   imports: [
@@ -29,11 +31,11 @@ import { CommentEntity } from './modules/comment/comment.entity';
       username: env.getAsStr('DB_USERNAME'),
       password: env.getAsStr('DB_PASSWORD'),
       database: env.getAsStr('DB_DATABASE'),
-      entities: [UserEntity,PostEntity,ImageEntity,CommentEntity],
+      entities: [UserEntity,PostEntity,ImageEntity,CommentEntity,LikeEntity],
       synchronize:true
       
     }),
-    UserModule,AuthModule,MailModule,UploadModule,PostModule,ImageModule,CommentModule
+    UserModule,AuthModule,MailModule,UploadModule,PostModule,ImageModule,CommentModule,LikeModule
   ],
   controllers: [AppController],
   providers: [AppService],

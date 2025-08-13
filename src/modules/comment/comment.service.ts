@@ -75,4 +75,21 @@ export class CommentService {
     })
     return listReply
   }
+
+  async findById(id:number){
+      const comment = await this.commentRepository.findOne({
+        where:{id:id}
+      })
+      if(!comment){
+        throw new NotFoundException("Không tồn tại comment ")
+      }
+  }
+
+  async decrementCommentLike(id:number){
+      await this.commentRepository.decrement({id:id},'like_count',1)
+  }
+
+  async incrementCommentLike(id:number){
+      await this.commentRepository.increment({id:id},'like_count',1)
+  }
 }
