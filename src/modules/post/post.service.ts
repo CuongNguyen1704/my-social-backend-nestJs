@@ -137,4 +137,8 @@ export class PostService {
   async incrementPostLike(related_id:number){
       await this.postRepository.increment({id:related_id},'like_count',1)
   }
+
+  async incrementCommentCount(post_id:number){
+    await this.postRepository.increment({id:post_id},'comment_count',1)
+  }
 }

@@ -17,6 +17,8 @@ export class CommentEntity extends BaseEntity{
     @Column({name:'user_id',nullable:false})
     user_id:number
     
+    @Column({name:'parent_id',nullable:true})
+    parent_id: number
     
     @ManyToOne(()=> UserEntity, (user) => user.comments)
     @JoinColumn({name:'user_id'})
