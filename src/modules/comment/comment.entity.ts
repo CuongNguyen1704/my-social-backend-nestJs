@@ -42,6 +42,13 @@ export class CommentEntity extends BaseEntity{
     })
     replies:CommentEntity[]
 
+    @Column({default:false,name:'is_edited'})
+    is_edited: boolean
+
+    @Column({nullable:true,name:'edit_at'})
+    edit_at:Date
+
+
     
 
 

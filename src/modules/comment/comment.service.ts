@@ -11,6 +11,7 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { UserService } from '../user/user.service';
 import { PostService } from '../post/post.service';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import { UpdateCommentDto } from './dto/update-comment.dto';
 
 @Injectable()
 export class CommentService {
@@ -120,26 +121,60 @@ export class CommentService {
       relations: ['parent', 'post'],
     });
 
-    if(!comment){
-      throw new NotFoundException("Comment không tồn tại")
+    if (!comment) {
+      throw new NotFoundException('Comment không tồn tại');
     }
 
-    if(comment.user_id !== user_id){
-      throw new ForbiddenException("Bạn không có quyền xóa comment này")
+    if (comment.user_id !== user_id) {
+      throw new ForbiddenException('Bạn không có quyền xóa comment này');
     }
 
-    if(!comment.parent_id){
-        await this.postService.decrementCommentCount(comment.post_id)
+    if (!comment.parent_id) {
+      await this.postService.decrementCommentCount(comment.post_id);
     } else {
-       await this.commentRepository.decrement({id:comment.parent_id},'reply_count',1)
+      await this.commentRepository.decrement(
+        { id: comment.parent_id },
+        'reply_count',
+        1,
+      );
     }
 
-    await this.commentRepository.delete({parent_id:comment.id})
-
-    await this.commentRepository.delete(id)
+    await this.commentRepository.delete(id);
 
     return {
-      message: "Comment delete successfully"
+      message: 'Comment delete successfully',
+    };
+  }
+
+  async update(contentDto: UpdateCommentDto, user_id: number, id: number) {
+    const comment = await this.commentRepository.findOne({
+      where: { id: id },
+      relations: ['post', 'user'],
+    });
+    if (!comment) {
+      throw new NotFoundException('comment không tồn tại');
+    }
+    if (comment.user_id !== user_id) {
+      throw new ForbiddenException('Bạn không có quyền sửa comment này');
+    }
+    const newContent = contentDto.content.trim()
+    if(!newContent){
+      throw new BadRequestException("Nội dung không được để trống")
+    }
+    if(comment.content === newContent){
+      throw new BadRequestException("Nội dung mới phải khác nội dung cũ")
+    }
+
+    await this.commentRepository.update(id, {
+      content: contentDto.content,
+      is_edited: true,
+      edit_at: new Date(),
+    });
+
+    const updateComment = await this.commentRepository.findOne({where:{id:id}})
+    return {
+      message:"cập nhật thành công",
+      updateComment
     }
 
   }
