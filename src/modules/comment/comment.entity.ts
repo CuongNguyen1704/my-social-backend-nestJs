@@ -32,12 +32,19 @@ export class CommentEntity extends BaseEntity{
     @JoinColumn({name:'post_id'})
     post:PostEntity
 
-    @ManyToOne(()=>CommentEntity, (comment)=>comment.replies,{nullable:true})
+    @ManyToOne(()=>CommentEntity, (comment)=>comment.replies,{nullable:true,onDelete:'CASCADE'})
     @JoinColumn({name:'parent_id'})
     parent:CommentEntity
 
-    @OneToMany(()=>CommentEntity,(comment)=>comment.parent)
+    @OneToMany(()=>CommentEntity,(comment)=>comment.parent,{
+        cascade:true,
+        
+    })
     replies:CommentEntity[]
+
+    @Column({nullable:true,name:'is_updated'})
+    is_updated:Boolean
+
 
     
 
