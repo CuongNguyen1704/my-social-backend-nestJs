@@ -167,8 +167,8 @@ export class CommentService {
 
     await this.commentRepository.update(id, {
       content: contentDto.content,
-      is_edited: true,
-      edit_at: new Date(),
+      is_updated:true,
+      updateAt:new Date()
     });
 
     const updateComment = await this.commentRepository.findOne({where:{id:id}})
