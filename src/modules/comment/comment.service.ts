@@ -45,6 +45,15 @@ export class CommentService {
 
     const saveComment = await this.commentRepository.save(createComment);
 
+    if(commentDto.parent_id){
+        await this.commentRepository.increment(
+          {id:commentDto.parent_id},
+          'reply_count',
+          1
+        )
+    }
+
+    await this.postService.incrementCommentCount(commentDto.post_id)
     return saveComment;
   }
 
@@ -53,18 +62,25 @@ export class CommentService {
     paginationQuery: PaginationQueryDto,
   ) {
     const { page = 1, limit = 10 } = paginationQuery;
-    const [data, total] = await this.commentRepository.findAndCount({
-      where: { post_id: post_id },
-      skip: (page - 1) * limit,
-      take: limit,
-      order: { createAt: 'DESC' },
-    });
+
+    const [data,total] = await this.commentRepository.findAndCount({
+      where:{
+          post_id,
+          parent_id: IsNull()
+      },
+      relations:['user'],
+      order:{
+        createAt:'DESC'
+      },
+      skip:(page - 1) * limit,
+      take:limit
+    })
     return {
       data,
       page,
       limit,
       total,
-      lastPage: Math.ceil(total / limit),
+      pageCount: Math.ceil(total / limit),
     };
   }
 
@@ -92,4 +108,5 @@ export class CommentService {
   async incrementCommentLike(id:number){
       await this.commentRepository.increment({id:id},'like_count',1)
   }
+
 }
