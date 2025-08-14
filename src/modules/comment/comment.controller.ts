@@ -32,6 +32,14 @@ export class CommentController{
         return listReply
     }
 
+    @UseGuards(JwtAuthGuard)
+    @Delete(':id')
+    async deleteComment(@Param('id') id:number, @Request() req:RequestWithUser){
+       const deleteComment =  await this.commentService.deleteComment(id,req.user.id)
+       return deleteComment 
+    }
+
+
     
 
 

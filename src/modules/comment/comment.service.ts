@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CommentEntity } from './comment.entity';
 import { IsNull, Not, Repository } from 'typeorm';
@@ -45,15 +50,15 @@ export class CommentService {
 
     const saveComment = await this.commentRepository.save(createComment);
 
-    if(commentDto.parent_id){
-        await this.commentRepository.increment(
-          {id:commentDto.parent_id},
-          'reply_count',
-          1
-        )
+    if (commentDto.parent_id) {
+      await this.commentRepository.increment(
+        { id: commentDto.parent_id },
+        'reply_count',
+        1,
+      );
+    } else {
+      await this.postService.incrementCommentCount(commentDto.post_id);
     }
-
-    await this.postService.incrementCommentCount(commentDto.post_id)
     return saveComment;
   }
 
@@ -63,18 +68,18 @@ export class CommentService {
   ) {
     const { page = 1, limit = 10 } = paginationQuery;
 
-    const [data,total] = await this.commentRepository.findAndCount({
-      where:{
-          post_id,
-          parent_id: IsNull()
+    const [data, total] = await this.commentRepository.findAndCount({
+      where: {
+        post_id,
+        parent_id: IsNull(),
       },
-      relations:['user'],
-      order:{
-        createAt:'DESC'
+      relations: ['user'],
+      order: {
+        createAt: 'DESC',
       },
-      skip:(page - 1) * limit,
-      take:limit
-    })
+      skip: (page - 1) * limit,
+      take: limit,
+    });
     return {
       data,
       page,
@@ -84,29 +89,58 @@ export class CommentService {
     };
   }
 
-  async listReply(parent_id:number) {
+  async listReply(parent_id: number) {
     const listReply = await this.commentRepository.find({
-      where:{parent:{id:parent_id}},
-      relations:['user']
-    })
-    return listReply
+      where: { parent: { id: parent_id } },
+      relations: ['user'],
+    });
+    return listReply;
   }
 
-  async findById(id:number){
-      const comment = await this.commentRepository.findOne({
-        where:{id:id}
-      })
-      if(!comment){
-        throw new NotFoundException("Không tồn tại comment ")
-      }
+  async findById(id: number) {
+    const comment = await this.commentRepository.findOne({
+      where: { id: id },
+    });
+    if (!comment) {
+      throw new NotFoundException('Không tồn tại comment ');
+    }
   }
 
-  async decrementCommentLike(id:number){
-      await this.commentRepository.decrement({id:id},'like_count',1)
+  async decrementCommentLike(id: number) {
+    await this.commentRepository.decrement({ id: id }, 'like_count', 1);
   }
 
-  async incrementCommentLike(id:number){
-      await this.commentRepository.increment({id:id},'like_count',1)
+  async incrementCommentLike(id: number) {
+    await this.commentRepository.increment({ id: id }, 'like_count', 1);
   }
 
+  async deleteComment(id: number, user_id: number) {
+    const comment = await this.commentRepository.findOne({
+      where: { id: id },
+      relations: ['parent', 'post'],
+    });
+
+    if(!comment){
+      throw new NotFoundException("Comment không tồn tại")
+    }
+
+    if(comment.user_id !== user_id){
+      throw new ForbiddenException("Bạn không có quyền xóa comment này")
+    }
+
+    if(!comment.parent_id){
+        await this.postService.decrementCommentCount(comment.post_id)
+    } else {
+       await this.commentRepository.decrement({id:comment.parent_id},'reply_count',1)
+    }
+
+    await this.commentRepository.delete({parent_id:comment.id})
+
+    await this.commentRepository.delete(id)
+
+    return {
+      message: "Comment delete successfully"
+    }
+
+  }
 }

@@ -141,4 +141,8 @@ export class PostService {
   async incrementCommentCount(post_id:number){
     await this.postRepository.increment({id:post_id},'comment_count',1)
   }
+
+  async decrementCommentCount(post_id:number){
+      this.postRepository.decrement({id:post_id},'comment_count',1)
+  }
 }
