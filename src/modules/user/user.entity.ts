@@ -10,6 +10,7 @@ import { BaseEntity } from 'src/common/entities/base.entity';
 import { PostEntity } from '../post/post.entity';
 import { CommentEntity } from '../comment/comment.entity';
 import { LikeEntity } from '../like/like.entity';
+import { FriendShipsEntity } from '../friend/friend.entity';
 
 @Entity('users')
 export class UserEntity extends BaseEntity {
@@ -67,5 +68,12 @@ export class UserEntity extends BaseEntity {
 
   @OneToMany(()=> LikeEntity,(like)=>like.user)
   likes:LikeEntity[]
+
+  @OneToMany(()=>FriendShipsEntity,(friendship)=>friendship.requester)
+  sentFriendRequest:FriendShipsEntity[]
+
+  @OneToMany(()=>FriendShipsEntity,(friendship)=>friendship.addressee)
+  receivedFriendRequest:FriendShipsEntity[]
+
 
 }
