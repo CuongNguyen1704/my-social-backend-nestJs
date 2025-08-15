@@ -96,9 +96,9 @@ export class PostService {
     };
   }
 
-  async deatail(id: number) {
-    if(!id || isNaN(id)){
-      throw new BadRequestException("Ivalid post id")
+  async detail(id: number) {
+    if (!id || isNaN(id)) {
+      throw new BadRequestException('Ivalid post id');
     }
     const postDeatail = await this.postRepository.findOne({
       where: { id: id },
@@ -125,7 +125,7 @@ export class PostService {
     return checkPost;
   }
 
-  async getPostByUser(id: number) {
+  async getPostByUser(id: number,user_id:number) {
     await this.userService.findById(id);
     const getPostByUser = await this.postRepository.find({
       where: {
@@ -141,7 +141,23 @@ export class PostService {
       return { message: 'Người dùng này chưa có bài viết nào cả' };
     }
 
-    return getPostByUser;
+    let likePostIds: number[] = [];
+
+    if (id) {
+      const likePosts = await this.likeRepository.find({
+        where: {
+          user_id,
+          related_type: RelatedType.POST,
+          related_id: In(getPostByUser.map((p) => p.id)),
+        },
+      });
+      likePostIds = likePosts.map((lp) => lp.related_id);
+    }
+
+    return getPostByUser.map((post) => ({
+      ...post,
+      isLike: likePostIds.includes(post.id),
+    }));
   }
 
   async decrementPostLike(related_id: number) {
@@ -160,25 +176,5 @@ export class PostService {
     this.postRepository.decrement({ id: post_id }, 'comment_count', 1);
   }
 
-  async getAll(user_id: number) {
-    const posts = await this.postRepository.find();
 
-    let likePostIds: number[] = [];
-
-    if (user_id) {
-      const likePosts = await this.likeRepository.find({
-        where: {
-          user_id,
-          related_type: RelatedType.POST,
-          related_id: In(posts.map((p) => p.id)),
-        },
-      });
-      likePostIds = likePosts.map((lp) => lp.related_id);
-    }
-
-    return posts.map((post) => ({
-      ...post,
-      isLike: likePostIds.includes(post.id),
-    }));
-  }
 }

@@ -40,13 +40,6 @@ export class PostController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('get-all')
-  async getAllPost(@Request() req: RequestWithUser) {
-    const getAll = await this.postService.getAll(req.user.id);
-    return getAll;
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Put(':id')
   @UseInterceptors(FilesInterceptor('images', 10))
   async update(
@@ -66,15 +59,15 @@ export class PostController {
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  async deatail(@Param('id') id: number) {
-    const post = await this.postService.deatail(id);
+  async detail(@Param('id') id: number) {
+    const post = await this.postService.detail(id);
     return post;
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('by-user/:id')
-  async getPostByUser(@Param('id') id: number) {
-    const postByUser = await this.postService.getPostByUser(id);
+  async getPostByUser(@Param('id') id: number,@Request() req:RequestWithUser) {
+    const postByUser = await this.postService.getPostByUser(id,req.user.id);
     return postByUser;
   }
 }
