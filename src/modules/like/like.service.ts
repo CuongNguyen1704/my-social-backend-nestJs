@@ -76,4 +76,10 @@ export class LikeService {
     await this.commentService.incrementCommentLike(commentDto.related_id);
     return saveLike;
   }
+
+  async getLikePostIdsByUser(user_id:number){
+      
+  }
+
+
 }
