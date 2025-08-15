@@ -17,6 +17,7 @@ import { error } from 'console';
 import { LikeService } from '../like/like.service';
 import { LikeEntity } from '../like/like.entity';
 import { RelatedType } from '../user/enums';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 
 @Injectable()
 export class PostService {
@@ -125,19 +126,22 @@ export class PostService {
     return checkPost;
   }
 
-  async getPostByUser(id: number,user_id:number) {
+  async getPostByUser(
+    id: number,
+    user_id: number,
+    paginationQueryDto: PaginationQueryDto,
+  ) {
     await this.userService.findById(id);
-    const getPostByUser = await this.postRepository.find({
-      where: {
-        user: { id: id },
-      },
-      order: {
-        createAt: 'DESC',
-      },
-      relations: ['user', 'images'],
+    const { page = 1, limit = 10 } = paginationQueryDto;
+    const [postData, total] = await this.postRepository.findAndCount({
+      where: { user: { id } },
+      order: { createAt: 'DESC' },
+      relations: ['images', 'user'],
+      skip: (page - 1) * limit,
+      take: limit,
     });
 
-    if (!getPostByUser || getPostByUser.length === 0) {
+    if (!postData || postData.length === 0) {
       return { message: 'Người dùng này chưa có bài viết nào cả' };
     }
 
@@ -148,16 +152,25 @@ export class PostService {
         where: {
           user_id,
           related_type: RelatedType.POST,
-          related_id: In(getPostByUser.map((p) => p.id)),
+          related_id: In(postData.map((p) => p.id)),
         },
       });
       likePostIds = likePosts.map((lp) => lp.related_id);
     }
 
-    return getPostByUser.map((post) => ({
+    const result = postData.map((post) => ({
       ...post,
       isLike: likePostIds.includes(post.id),
     }));
+
+    const pageCount = Math.ceil(total / limit);
+    return {
+      data: result,
+      total,
+      page,
+      limit,
+      pageCount,
+    };
   }
 
   async decrementPostLike(related_id: number) {
@@ -175,6 +188,4 @@ export class PostService {
   async decrementCommentCount(post_id: number) {
     this.postRepository.decrement({ id: post_id }, 'comment_count', 1);
   }
-
-
 }

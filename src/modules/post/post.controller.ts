@@ -5,6 +5,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Request,
   UploadedFile,
   UploadedFiles,
@@ -17,6 +18,7 @@ import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { RequestWithUser } from '../auth/type/Request-with-user.interface';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { UpdatePostDto } from './dto/update.dto';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 
 @Controller('post')
 export class PostController {
@@ -66,8 +68,8 @@ export class PostController {
 
   @UseGuards(JwtAuthGuard)
   @Get('by-user/:id')
-  async getPostByUser(@Param('id') id: number,@Request() req:RequestWithUser) {
-    const postByUser = await this.postService.getPostByUser(id,req.user.id);
+  async getPostByUser(@Param('id') id: number,@Request() req:RequestWithUser,@Query() paginationQueryDto:PaginationQueryDto) {
+    const postByUser = await this.postService.getPostByUser(id,req.user.id,paginationQueryDto);
     return postByUser;
   }
 }
