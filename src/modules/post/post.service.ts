@@ -1,6 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { PostEntity } from './post.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { ImageEntity } from '../image/image.entity';
 import { CreatePostDto } from './dto/create.dto';
 import {
@@ -14,6 +14,9 @@ import { ImageService } from '../image/image.service';
 import { UpdatePostDto } from './dto/update.dto';
 import { url } from 'inspector';
 import { error } from 'console';
+import { LikeService } from '../like/like.service';
+import { LikeEntity } from '../like/like.entity';
+import { RelatedType } from '../user/enums';
 
 @Injectable()
 export class PostService {
@@ -24,6 +27,8 @@ export class PostService {
     private readonly userService: UserService,
     private readonly imageService: ImageService,
     private readonly uploadService: UploadService,
+    @InjectRepository(LikeEntity)
+    private readonly likeRepository: Repository<LikeEntity>,
   ) {}
 
   async create(
@@ -77,15 +82,24 @@ export class PostService {
     // chỗ này m đang lưu bài post cũ gồm cả ảnh cũ, nhưng ảnh cũ bị xóa ở đoạn trên nên gây lỗi
     await this.postRepository.update(post.id, {
       content: updateDto.content ?? post.content,
+      is_updated: true,
+    });
+
+    const postUpdate = await this.postRepository.findOne({
+      where: { id: post_id },
+      relations: ['user', 'images'],
     });
 
     return {
-      ...post,
+      Post: postUpdate,
       images: saveImage,
     };
   }
 
   async deatail(id: number) {
+    if(!id || isNaN(id)){
+      throw new BadRequestException("Ivalid post id")
+    }
     const postDeatail = await this.postRepository.findOne({
       where: { id: id },
       relations: ['images', 'user'],
@@ -122,27 +136,49 @@ export class PostService {
       },
       relations: ['user', 'images'],
     });
-    
-    if(!getPostByUser || getPostByUser.length === 0){
-        return {message: "Người dùng này chưa có bài viết nào cả"}
+
+    if (!getPostByUser || getPostByUser.length === 0) {
+      return { message: 'Người dùng này chưa có bài viết nào cả' };
     }
 
     return getPostByUser;
   }
 
-  async decrementPostLike(related_id:number){
-      await this.postRepository.decrement({id:related_id},'like_count',1)
+  async decrementPostLike(related_id: number) {
+    await this.postRepository.decrement({ id: related_id }, 'like_count', 1);
   }
 
-  async incrementPostLike(related_id:number){
-      await this.postRepository.increment({id:related_id},'like_count',1)
+  async incrementPostLike(related_id: number) {
+    await this.postRepository.increment({ id: related_id }, 'like_count', 1);
   }
 
-  async incrementCommentCount(post_id:number){
-    await this.postRepository.increment({id:post_id},'comment_count',1)
+  async incrementCommentCount(post_id: number) {
+    await this.postRepository.increment({ id: post_id }, 'comment_count', 1);
   }
 
-  async decrementCommentCount(post_id:number){
-      this.postRepository.decrement({id:post_id},'comment_count',1)
+  async decrementCommentCount(post_id: number) {
+    this.postRepository.decrement({ id: post_id }, 'comment_count', 1);
+  }
+
+  async getAll(user_id: number) {
+    const posts = await this.postRepository.find();
+
+    let likePostIds: number[] = [];
+
+    if (user_id) {
+      const likePosts = await this.likeRepository.find({
+        where: {
+          user_id,
+          related_type: RelatedType.POST,
+          related_id: In(posts.map((p) => p.id)),
+        },
+      });
+      likePostIds = likePosts.map((lp) => lp.related_id);
+    }
+
+    return posts.map((post) => ({
+      ...post,
+      isLike: likePostIds.includes(post.id),
+    }));
   }
 }

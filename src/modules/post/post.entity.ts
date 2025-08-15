@@ -3,6 +3,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { UserEntity } from '../user/user.entity';
 import { ImageEntity } from '../image/image.entity';
 import { CommentEntity } from '../comment/comment.entity';
+import { LikeEntity } from '../like/like.entity';
 
 @Entity('posts')
 export class PostEntity extends BaseEntity {
@@ -25,4 +26,9 @@ export class PostEntity extends BaseEntity {
 
   @OneToMany(()=>CommentEntity,(comment)=> comment.post,{cascade:true})
   comments:CommentEntity[]
+
+  @Column({name:'is_updated',nullable:true})
+  is_updated:Boolean
+
+
 }
