@@ -10,7 +10,8 @@ import { BaseEntity } from 'src/common/entities/base.entity';
 import { PostEntity } from '../post/post.entity';
 import { CommentEntity } from '../comment/comment.entity';
 import { LikeEntity } from '../like/like.entity';
-import { FriendShipsEntity } from '../friend/friend.entity';
+import { FriendRequestEntity } from '../friend/friend_request.entity';
+import { FriendShipEntity } from '../friend/friendship.entity';
 
 @Entity('users')
 export class UserEntity extends BaseEntity {
@@ -69,11 +70,16 @@ export class UserEntity extends BaseEntity {
   @OneToMany(()=> LikeEntity,(like)=>like.user)
   likes:LikeEntity[]
 
-  @OneToMany(()=>FriendShipsEntity,(friendship)=>friendship.requester)
-  sentFriendRequest:FriendShipsEntity[]
+  @OneToMany(()=>FriendRequestEntity,(friendRequest)=>friendRequest.requester)
+  sentFriendRequest:FriendRequestEntity[]
 
-  @OneToMany(()=>FriendShipsEntity,(friendship)=>friendship.addressee)
-  receivedFriendRequest:FriendShipsEntity[]
+  @OneToMany(()=>FriendRequestEntity,(friendRequest)=>friendRequest.addressee)
+  receivedFriendRequest:FriendRequestEntity[]
 
+  @OneToMany(()=>FriendShipEntity,(friendShip)=>friendShip.user)
+  friendshipAsUser:FriendShipEntity[]
+
+  @OneToMany(()=>FriendShipEntity,(friendShip)=>friendShip.friend)
+  friendshipAsFriend:FriendShipEntity[]
 
 }

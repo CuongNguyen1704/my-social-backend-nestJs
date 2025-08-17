@@ -1,14 +1,14 @@
 import { BaseEntity } from "src/common/entities/base.entity";
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
-import { FRIENDSHIPSTATUS } from "./enums";
+import { FRIENDREQUEST } from "./enums";
 import { UserEntity } from "../user/user.entity";
 
-@Entity('friendships')
+@Entity('friend_request')
 
-export class FriendShipsEntity extends BaseEntity{
+export class FriendRequestEntity extends BaseEntity{
 
-    @Column({type:'enum',enum:FRIENDSHIPSTATUS,default:FRIENDSHIPSTATUS.PENDING})
-    status:FRIENDSHIPSTATUS
+    @Column({type:'enum',enum:FRIENDREQUEST,default:FRIENDREQUEST.PENDING})
+    status:FRIENDREQUEST
 
     @Column({name:'requester_id',nullable:true})
     requester_id:number

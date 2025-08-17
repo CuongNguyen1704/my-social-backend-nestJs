@@ -18,8 +18,9 @@ import { CommentModule } from './modules/comment/conmment.module';
 import { CommentEntity } from './modules/comment/comment.entity';
 import { LikeModule } from './modules/like/like.module';
 import { LikeEntity } from './modules/like/like.entity';
-import { FriendShipsEntity } from './modules/friend/friend.entity';
+import { FriendRequestEntity } from './modules/friend/friend_request.entity';
 import { FriendModule } from './modules/friend/friend.module';
+import { FriendShipEntity } from './modules/friend/friendship.entity';
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { FriendModule } from './modules/friend/friend.module';
       username: env.getAsStr('DB_USERNAME'),
       password: env.getAsStr('DB_PASSWORD'),
       database: env.getAsStr('DB_DATABASE'),
-      entities: [UserEntity,PostEntity,ImageEntity,CommentEntity,LikeEntity,FriendShipsEntity],
+      entities: [UserEntity,PostEntity,ImageEntity,CommentEntity,LikeEntity,FriendRequestEntity,FriendShipEntity],
       synchronize:true
       
     }),
