@@ -10,8 +10,8 @@ import { BaseEntity } from 'src/common/entities/base.entity';
 import { PostEntity } from '../post/post.entity';
 import { CommentEntity } from '../comment/comment.entity';
 import { LikeEntity } from '../like/like.entity';
-import { FriendRequestEntity } from '../friend/friend_request.entity';
-import { FriendShipEntity } from '../friend/friendship.entity';
+import { FriendRequestEntity } from '../friend/entities/friend_request.entity';
+import { FriendShipEntity } from '../friend/entities/friendship.entity';
 
 @Entity('users')
 export class UserEntity extends BaseEntity {

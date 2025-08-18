@@ -18,9 +18,9 @@ import { CommentModule } from './modules/comment/conmment.module';
 import { CommentEntity } from './modules/comment/comment.entity';
 import { LikeModule } from './modules/like/like.module';
 import { LikeEntity } from './modules/like/like.entity';
-import { FriendRequestEntity } from './modules/friend/friend_request.entity';
+import { FriendRequestEntity } from './modules/friend/entities/friend_request.entity';
 import { FriendModule } from './modules/friend/friend.module';
-import { FriendShipEntity } from './modules/friend/friendship.entity';
+import { FriendShipEntity } from './modules/friend/entities/friendship.entity';
 
 @Module({
   imports: [

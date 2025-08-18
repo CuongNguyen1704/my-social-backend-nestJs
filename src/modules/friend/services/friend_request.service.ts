@@ -4,12 +4,12 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FriendRequestEntity } from './friend_request.entity';
+import { FriendRequestEntity } from '../entities/friend_request.entity';
 import { Repository } from 'typeorm';
-import { RequestWithUser } from '../auth/type/Request-with-user.interface';
-import { UserService } from '../user/user.service';
-import { FRIENDREQUEST } from './enums';
-import { FriendShipEntity } from './friendship.entity';
+import { RequestWithUser } from '../../auth/type/Request-with-user.interface';
+import { UserService } from '../../user/user.service';
+import { FRIEND_REQUEST_STATUS } from '../enums';
+import { FriendShipEntity } from '../entities/friendship.entity';
 
 @Injectable()
 export class FriendService {
@@ -22,7 +22,7 @@ export class FriendService {
     private readonly friendShipRepository: Repository<FriendShipEntity>,
   ) {}
 
-  async sendRequest(request_id: number, addressee_id: number) {
+  async sendOrCancelFriendRequest(request_id: number, addressee_id: number) {
     await this.userService.findById(addressee_id);
     if (request_id === addressee_id){
       throw new BadRequestException('Không thể kết bạn với chính mình');
@@ -48,14 +48,25 @@ export class FriendService {
       }
     }
 
-    if (friendRequest.status == FRIENDREQUEST.PENDING) {
+    if(friendRequest.status == FRIEND_REQUEST_STATUS.CANCEL){
+       const updateRequest = await  this.friendRequestRepository.update(friendRequest.id,{status:FRIEND_REQUEST_STATUS.PENDING})
+       return {
+          message: "Gửi lại lời mời thành công",
+       }
+    }
+
+    if (friendRequest.status == FRIEND_REQUEST_STATUS.PENDING) {
       if (friendRequest.addressee.id == request_id) {
           throw new BadRequestException("Bạn không thể gửi lời mời kết bạn khi người đó đã gửi cho bạn")
       }
     }
 
-    if (friendRequest.requester.id === request_id) {
-      await this.friendRequestRepository.remove(friendRequest);
+    if(friendRequest.status == FRIEND_REQUEST_STATUS.ACCEPTED){
+        throw new BadRequestException("Bạn không thể gửi lời mời khi người đó đã là bạn của bạn")
+    }
+
+    if (friendRequest.requester.id === request_id && friendRequest.status == FRIEND_REQUEST_STATUS.PENDING){
+      await this.friendRequestRepository.update(friendRequest.id,{status:FRIEND_REQUEST_STATUS.CANCEL});
       return { message: 'đã hủy lời mời' };
     }
     

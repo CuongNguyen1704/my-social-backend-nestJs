@@ -1,10 +1,10 @@
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { FriendRequestEntity } from "./friend_request.entity";
-import { FriendService } from "./friend_request.service";
-import { FriendController } from "./friend.controller";
+import { FriendRequestEntity } from "./entities/friend_request.entity";
+import { FriendService } from "./services/friend_request.service";
+import { FriendController } from "./controllers/friend.controller";
 import { UserModule } from "../user/user.module";
-import { FriendShipEntity } from "./friendship.entity";
+import { FriendShipEntity } from "./entities/friendship.entity";
 
 @Module({
     imports:[TypeOrmModule.forFeature([FriendRequestEntity,FriendShipEntity]),UserModule],

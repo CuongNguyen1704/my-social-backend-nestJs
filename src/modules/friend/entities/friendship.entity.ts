@@ -1,7 +1,7 @@
 import { BaseEntity } from "src/common/entities/base.entity";
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
-import { FRIENDSHIP } from "./enums";
-import { UserEntity } from "../user/user.entity";
+import { FRIENDSHIP } from "../enums";
+import { UserEntity } from "../../user/user.entity";
 import { use } from "passport";
 
 @Entity('friendships')
