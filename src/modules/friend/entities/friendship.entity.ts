@@ -1,8 +1,8 @@
 import { BaseEntity } from "src/common/entities/base.entity";
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
-import { FRIENDSHIP } from "../enums";
+import { FRIEND_SHIP_STATUS } from "../enums";
 import { UserEntity } from "../../user/user.entity";
-import { use } from "passport";
+
 
 @Entity('friendships')
 export class FriendShipEntity extends BaseEntity{
@@ -13,8 +13,8 @@ export class FriendShipEntity extends BaseEntity{
     @Column({name:'friend_id',nullable:true})
     friend_id:number
 
-    @Column({name:'status',type:'enum',enum:FRIENDSHIP,default:FRIENDSHIP.ACTIVE})
-    status:FRIENDSHIP
+    @Column({name:'status',type:'enum',enum:FRIEND_SHIP_STATUS,default:FRIEND_SHIP_STATUS.ACTIVE})
+    status:FRIEND_SHIP_STATUS
 
     @ManyToOne(()=>UserEntity,(user)=>user.friendshipAsUser,{onDelete:'CASCADE'})
     @JoinColumn({name:'user_id'})

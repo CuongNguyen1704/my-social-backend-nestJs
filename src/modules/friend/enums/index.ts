@@ -6,8 +6,8 @@ export enum FRIEND_REQUEST_STATUS {
     CANCEL = 'cancel' // đã gửi lời mời xong lại hủy
 }
 
-export enum FRIENDSHIP {
+export enum FRIEND_SHIP_STATUS {
     ACTIVE = 'active',
     BLOCKED = 'blocked',
-    UNFOLLOW = 'unfollow'
+    UNFRIENDED = 'unfriended'
 }

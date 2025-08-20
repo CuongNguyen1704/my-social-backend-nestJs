@@ -8,7 +8,7 @@ import { FriendRequestEntity } from '../entities/friend_request.entity';
 import { Repository } from 'typeorm';
 import { RequestWithUser } from '../../auth/type/Request-with-user.interface';
 import { UserService } from '../../user/user.service';
-import { FRIEND_REQUEST_STATUS } from '../enums';
+import { FRIEND_REQUEST_STATUS, FRIEND_SHIP_STATUS } from '../enums';
 import { FriendShipEntity } from '../entities/friendship.entity';
 
 @Injectable()
@@ -39,7 +39,7 @@ export class FriendRequestService {
     const friendShip = await this.friendShipRepository.findOne({
       where: { user_id: request_id, friend_id: addressee_id },
     });
-    if (friendShip) {
+    if (friendShip && !(friendShip.status === FRIEND_SHIP_STATUS.UNFRIENDED)) {
       throw new BadRequestException(
         'Bạn không thể gửi lời mời khi đã là bạn bè',
       );
@@ -107,16 +107,39 @@ export class FriendRequestService {
       throw new BadRequestException('không tìm thấy lời mời kết bạn');
     }
     if (friendRequest.status !== FRIEND_REQUEST_STATUS.PENDING) {
-      throw new BadRequestException('Lời mời này không ở trạng thái chờ');
+      throw new BadRequestException(
+        'Lời mời này không ở trạng thái chờ phản hồi',
+      );
     }
 
-    const friendShip = await this.friendShipRepository.findOne({
-      where: { user_id: userId, friend_id: friend_id },
+    const friendShip = await this.friendShipRepository.find({
+      where: [
+        { user_id: userId, friend_id: friend_id },
+        { user_id: friend_id, friend_id: userId },
+      ],
     });
-    if (friendShip) {
+    // check tất cả bản ghi khác unfriend
+    if (
+      friendShip.length === 2 &&
+      friendShip.every((fs) => fs.status !== FRIEND_SHIP_STATUS.UNFRIENDED)
+    ) {
       throw new BadRequestException('Bạn đã kết bạn với người này rồi');
     }
-    if (friendRequest.status == FRIEND_REQUEST_STATUS.PENDING) {
+
+    if (
+      friendShip.length === 2 &&
+      friendShip.every((fs) => fs.status !== FRIEND_SHIP_STATUS.ACTIVE)
+    ) {
+      await this.friendRequestRepository.update(friendRequest.id, {
+        status: FRIEND_REQUEST_STATUS.ACCEPTED,
+      });
+      for (const fs of friendShip) {
+        fs.status = FRIEND_SHIP_STATUS.ACTIVE;
+        await this.friendShipRepository.save(fs);
+      }
+    }
+
+    if (!(friendShip.length === 2)) {
       await this.friendRequestRepository.update(friendRequest.id, {
         status: FRIEND_REQUEST_STATUS.ACCEPTED,
       });
@@ -129,12 +152,11 @@ export class FriendRequestService {
         user_id: friend_id,
         friend_id: userId,
       });
-
       await this.friendShipRepository.save([saveFriend1, saveFriend2]);
-      return {
-        message: 'kết bạn thành công',
-      };
     }
+    return {
+      message: 'kết bạn thành công',
+    };
   }
 
   async reject(userId: number, friend_id: number) {
@@ -148,22 +170,26 @@ export class FriendRequestService {
       throw new BadRequestException('không tìm thấy lời mời kết bạn');
     }
     if (friendRequest.status !== FRIEND_REQUEST_STATUS.PENDING) {
-      throw new BadRequestException('Lời mời này không ở trạng thái chờ');
+      throw new BadRequestException(
+        'Lời mời này không ở trạng thái chờ phản hồi',
+      );
     }
 
     const friendShip = await this.friendShipRepository.findOne({
-      where: { user_id: userId, friend_id: friend_id },
+      where: [
+        { user_id: userId, friend_id: friend_id },
+        { user_id: friend_id, friend_id: userId },
+      ],
     });
     if (friendShip) {
       throw new BadRequestException('Bạn đã kết bạn với người này rồi');
     }
-    if (friendRequest.status == FRIEND_REQUEST_STATUS.PENDING) {
-      await this.friendRequestRepository.update(friendRequest.id, {
-        status: FRIEND_REQUEST_STATUS.REJECT,
-      });
-      return {
-        message: 'Từ chối kết bạn thành công',
-      };
-    }
+    await this.friendRequestRepository.update(friendRequest.id, {
+      status: FRIEND_REQUEST_STATUS.REJECT,
+    });
+
+    return {
+      message: 'Từ chối kết bạn thành công',
+    };
   }
 }

@@ -1,5 +1,7 @@
-import { Controller } from "@nestjs/common";
+import { Controller, Param, Put, Request, UseGuards } from "@nestjs/common";
 import { friendShipSerice } from "../services/friend_ship.service";
+import { JwtAuthGuard } from "src/modules/guards/jwt-auth.guard";
+import { RequestWithUser } from "src/modules/auth/type/Request-with-user.interface";
 
 @Controller('friend-ship')
 export class FriendShipController {
@@ -7,5 +9,11 @@ export class FriendShipController {
         private readonly friendShipService:friendShipSerice
     ){}
 
+    @UseGuards(JwtAuthGuard)
+    @Put('unfriend/:userId')
+    async unFriend(@Request() req:RequestWithUser,@Param('userId') userId:number){
+        const unFriend = await this.friendShipService.unFriend(req.user.id,userId)
+        return unFriend
+    }
     
 }
