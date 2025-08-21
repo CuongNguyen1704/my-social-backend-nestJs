@@ -53,4 +53,14 @@ export class friendShipSerice {
       message: 'đã hủy kết bạn thành công',
     };
   }
+
+  async listFriend(user_id: number) {
+    const listFriend = await this.frienShipRepository.find({
+      where: [
+        { user_id: user_id, status: FRIEND_SHIP_STATUS.ACTIVE },
+        { friend_id: user_id, status: FRIEND_SHIP_STATUS.ACTIVE },
+      ], relations:['user','friend']
+    });
+    return listFriend;
+  }
 }

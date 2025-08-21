@@ -191,4 +191,12 @@ export class FriendRequestService {
       message: 'Từ chối kết bạn thành công',
     };
   }
+
+  async listRequest(user_id:number){
+      const listRequest = await this.friendRequestRepository.find({
+          where:{addressee_id:user_id},
+          relations:['requester','addressee']
+      })
+      return listRequest
+  }
 }

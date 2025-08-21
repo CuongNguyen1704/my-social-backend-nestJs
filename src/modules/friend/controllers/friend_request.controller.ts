@@ -1,4 +1,4 @@
-import { Controller, Param, Post, Request, UseGuards } from "@nestjs/common";
+import { Controller, Get, Param, Post, Request, UseGuards } from "@nestjs/common";
 import { FriendRequestService } from "../services/friend_request.service";
 import { JwtAuthGuard } from "../../guards/jwt-auth.guard";
 import { RequestWithUser } from "../../auth/type/Request-with-user.interface";
@@ -28,5 +28,12 @@ export class FriendRequestController {
     async rejectFriendRequest(@Request() req:RequestWithUser,@Param('userId') userId:number){
         const reject =  await this.friendRequestService.reject(req.user.id,userId)
         return reject
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('list-request-friend')
+    async getListRequestFriend(@Request() req:RequestWithUser){
+        const listRequest = await this.friendRequestService.listRequest(req.user.id)
+        return listRequest
     }
 }
