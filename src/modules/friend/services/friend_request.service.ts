@@ -45,7 +45,18 @@ export class FriendRequestService {
       );
     }
 
-    if (!friendRequest) {
+    if (
+      !friendRequest ||
+      friendShip?.status === FRIEND_SHIP_STATUS.UNFRIENDED ||
+      friendRequest.status === FRIEND_REQUEST_STATUS.REJECT ||
+      friendRequest.status === FRIEND_REQUEST_STATUS.CANCEL
+    ) {
+      if (
+        friendRequest?.status === FRIEND_REQUEST_STATUS.REJECT ||
+        friendRequest?.status === FRIEND_REQUEST_STATUS.CANCEL
+      ) {
+        await this.friendRequestRepository.softDelete(friendRequest.id);
+      }
       const newfriendRequest = this.friendRequestRepository.create({
         requester_id: request_id,
         addressee_id: addressee_id,
@@ -65,28 +76,8 @@ export class FriendRequestService {
         );
       }
     }
-
-    if (friendRequest.status == FRIEND_REQUEST_STATUS.REJECT) {
-      await this.friendRequestRepository.update(friendRequest.id, {
-        status: FRIEND_REQUEST_STATUS.PENDING,
-      });
-
-      return {
-        message: 'gửi lời mời kết bạn thành công',
-      };
-    }
-
-    if (friendRequest.status == FRIEND_REQUEST_STATUS.CANCEL) {
-      await this.friendRequestRepository.update(friendRequest.id, {
-        status: FRIEND_REQUEST_STATUS.PENDING,
-      });
-      return {
-        message: 'Gửi lại  lời mời thành công',
-      };
-    }
-
     if (
-      friendRequest.requester.id === request_id &&
+      friendRequest.requester_id === request_id &&
       friendRequest.status == FRIEND_REQUEST_STATUS.PENDING
     ) {
       await this.friendRequestRepository.update(friendRequest.id, {
@@ -128,15 +119,23 @@ export class FriendRequestService {
 
     if (
       friendShip.length === 2 &&
-      friendShip.every((fs) => fs.status !== FRIEND_SHIP_STATUS.ACTIVE)
+      friendShip.every((fs) => fs.status === FRIEND_SHIP_STATUS.UNFRIENDED)
     ) {
-      await this.friendRequestRepository.update(friendRequest.id, {
-        status: FRIEND_REQUEST_STATUS.ACCEPTED,
-      });
+      await this.friendRequestRepository.update(friendRequest.id,{status:FRIEND_REQUEST_STATUS.ACCEPTED});
       for (const fs of friendShip) {
-        fs.status = FRIEND_SHIP_STATUS.ACTIVE;
-        await this.friendShipRepository.save(fs);
+        fs.status = FRIEND_SHIP_STATUS.UNFRIENDED;
+        await this.friendShipRepository.softDelete(fs.id);
       }
+      const saveFriend1 = this.friendShipRepository.create({
+        user_id: userId,
+        friend_id: friend_id,
+      });
+
+      const saveFriend2 = this.friendShipRepository.create({
+        user_id: friend_id,
+        friend_id: userId,
+      });
+      await this.friendShipRepository.save([saveFriend1, saveFriend2]);
     }
 
     if (!(friendShip.length === 2)) {
@@ -181,7 +180,7 @@ export class FriendRequestService {
         { user_id: friend_id, friend_id: userId },
       ],
     });
-    if (friendShip) {
+    if (friendShip && !(friendShip.status === FRIEND_SHIP_STATUS.UNFRIENDED)) {
       throw new BadRequestException('Bạn đã kết bạn với người này rồi');
     }
     await this.friendRequestRepository.update(friendRequest.id, {

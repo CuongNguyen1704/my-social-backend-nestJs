@@ -29,7 +29,6 @@ export class friendShipSerice {
     if (friendships.length === 0) {
       throw new NotFoundException('2 bạn chưa phải là bạn bè');
     }
-
     const allActive = friendships.every(
       (f) => f.status === FRIEND_SHIP_STATUS.ACTIVE,
     );
@@ -48,11 +47,8 @@ export class friendShipSerice {
       ],
     });
     if (requestFriend) {
-      await this.friendRequestRepository.update(requestFriend.id, {
-        status: FRIEND_REQUEST_STATUS.CANCEL,
-      });
+      await this.friendRequestRepository.softDelete(requestFriend.id);
     }
-
     return {
       message: 'đã hủy kết bạn thành công',
     };
