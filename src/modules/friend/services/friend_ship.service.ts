@@ -26,29 +26,18 @@ export class friendShipSerice {
         { user_id: friend_id, friend_id: userId },
       ],
     });
-    if (friendships.length === 0) {
-      throw new NotFoundException('2 bạn chưa phải là bạn bè');
+    if (!friendships.length) {
+      throw new BadRequestException('2 người không phải là bạn bè');
     }
-    const allActive = friendships.every(
-      (f) => f.status === FRIEND_SHIP_STATUS.ACTIVE,
-    );
+    const allActive = friendships.every((f) => f.deleteAt === null);
     if (!allActive) {
       throw new BadRequestException('Chỉ có thể hủy khi đang là bạn bè');
     }
     for (const friendship of friendships) {
       ((friendship.status = FRIEND_SHIP_STATUS.UNFRIENDED),
-        await this.frienShipRepository.save(friendship));
+        await this.frienShipRepository.softDelete(friendship.id));
     }
 
-    const requestFriend = await this.friendRequestRepository.findOne({
-      where: [
-        { requester_id: userId, addressee_id: friend_id },
-        { requester_id: friend_id, addressee_id: userId },
-      ],
-    });
-    if (requestFriend) {
-      await this.friendRequestRepository.softDelete(requestFriend.id);
-    }
     return {
       message: 'đã hủy kết bạn thành công',
     };
@@ -59,7 +48,8 @@ export class friendShipSerice {
       where: [
         { user_id: user_id, status: FRIEND_SHIP_STATUS.ACTIVE },
         { friend_id: user_id, status: FRIEND_SHIP_STATUS.ACTIVE },
-      ], relations:['user','friend']
+      ],
+      relations: ['user', 'friend'],
     });
     return listFriend;
   }
