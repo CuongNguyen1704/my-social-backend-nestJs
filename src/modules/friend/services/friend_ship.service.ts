@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FriendShipEntity } from '../entities/friendship.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { FRIEND_REQUEST_STATUS, FRIEND_SHIP_STATUS } from '../enums';
 import { FriendRequestEntity } from '../entities/friend_request.entity';
 
@@ -22,22 +22,17 @@ export class friendShipSerice {
   async unFriend(userId: number, friend_id: number) {
     const friendships = await this.frienShipRepository.find({
       where: [
-        { user_id: userId, friend_id: friend_id },
-        { user_id: friend_id, friend_id: userId },
+        { user_id: userId, friend_id: friend_id,deleteAt:IsNull() },
+        { user_id: friend_id, friend_id: userId,deleteAt:IsNull() },
       ],
     });
     if (!friendships.length) {
       throw new BadRequestException('2 người không phải là bạn bè');
     }
-    const allActive = friendships.every((f) => f.deleteAt === null);
-    if (!allActive) {
-      throw new BadRequestException('Chỉ có thể hủy khi đang là bạn bè');
-    }
-    for (const friendship of friendships) {
+    for (const friendship of friendships){
       ((friendship.status = FRIEND_SHIP_STATUS.UNFRIENDED),
         await this.frienShipRepository.softDelete(friendship.id));
     }
-
     return {
       message: 'đã hủy kết bạn thành công',
     };
