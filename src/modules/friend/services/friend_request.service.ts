@@ -1,14 +1,12 @@
 import {
-  BadGatewayException,
   BadRequestException,
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FriendRequestEntity } from '../entities/friend_request.entity';
 import { IsNull, Repository } from 'typeorm';
-import { RequestWithUser } from '../../auth/type/Request-with-user.interface';
 import { UserService } from '../../user/user.service';
-import { FRIEND_REQUEST_STATUS, FRIEND_SHIP_STATUS } from '../enums';
+import { FRIEND_REQUEST_STATUS} from '../enums';
 import { FriendShipEntity } from '../entities/friendship.entity';
 
 @Injectable()
@@ -18,6 +16,7 @@ export class FriendRequestService {
     private readonly friendRequestRepository: Repository<FriendRequestEntity>,
 
     private readonly userService: UserService,
+
     @InjectRepository(FriendShipEntity)
     private readonly friendShipRepository: Repository<FriendShipEntity>,
   ) {}
@@ -34,11 +33,13 @@ export class FriendRequestService {
         { user_id: addressee_id, friend_id: request_id, deleteAt: IsNull() },
       ],
     });
+
     if (friendShip) {
       throw new BadRequestException(
         'Bạn không thể gửi lời mời khi đã là bạn bè',
       );
-    }
+    };
+
     const friendRequest = await this.friendRequestRepository.findOne({
       where: [
         {
@@ -64,8 +65,10 @@ export class FriendRequestService {
         requester_id: request_id,
         addressee_id: addressee_id,
       });
+
       const saveRequest =
         await this.friendRequestRepository.save(newfriendRequest);
+
       return {
         message: 'Gửi lời mời kết bạn thành công ',
         saveRequest,
@@ -85,9 +88,11 @@ export class FriendRequestService {
         { user_id: friend_id, friend_id: userId, deleteAt: IsNull() },
       ],
     });
+
     if (friendShip) {
       throw new BadRequestException('Hai bạn đã là bạn bè');
-    }
+    };
+
     const friendRequest = await this.friendRequestRepository.findOne({
       where: {
         requester_id: friend_id,
@@ -95,12 +100,15 @@ export class FriendRequestService {
         status: FRIEND_REQUEST_STATUS.PENDING,
       },
     });
+
     if (!friendRequest) {
       throw new BadRequestException('không tìm thấy lời mời kết bạn');
-    }
+    };
+
     await this.friendRequestRepository.update(friendRequest.id, {
       status: FRIEND_REQUEST_STATUS.ACCEPTED,
     });
+
     const saveFriend1 = this.friendShipRepository.create({
       user_id: userId,
       friend_id: friend_id,
@@ -110,7 +118,9 @@ export class FriendRequestService {
       user_id: friend_id,
       friend_id: userId,
     });
+
     await this.friendShipRepository.save([saveFriend1, saveFriend2]);
+    
     return {
       message: 'kết bạn thành công',
     };
@@ -123,9 +133,11 @@ export class FriendRequestService {
         { user_id: friend_id, friend_id: userId, deleteAt: IsNull() },
       ],
     });
+
     if (friendShip) {
       throw new BadRequestException('Hai bạn đã là bạn bè');
-    }
+    };
+
     const friendRequest = await this.friendRequestRepository.findOne({
       where: {
         requester_id: friend_id,
@@ -133,9 +145,11 @@ export class FriendRequestService {
         status: FRIEND_REQUEST_STATUS.PENDING,
       },
     });
+
     if (!friendRequest) {
       throw new BadRequestException('không tìm thấy lời mời kết bạn');
     }
+
     await this.friendRequestRepository.update(friendRequest.id, {
       status: FRIEND_REQUEST_STATUS.REJECT,
     });
@@ -150,6 +164,7 @@ export class FriendRequestService {
       where: { addressee_id: user_id },
       relations: ['requester', 'addressee'],
     });
+
     return listRequest;
   }
 }

@@ -1,38 +1,33 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FriendShipEntity } from '../entities/friendship.entity';
 import { IsNull, Repository } from 'typeorm';
-import { FRIEND_REQUEST_STATUS, FRIEND_SHIP_STATUS } from '../enums';
-import { FriendRequestEntity } from '../entities/friend_request.entity';
+import { FRIEND_SHIP_STATUS } from '../enums';
 
 @Injectable()
 export class friendShipSerice {
   constructor(
     @InjectRepository(FriendShipEntity)
     private readonly frienShipRepository: Repository<FriendShipEntity>,
-
-    @InjectRepository(FriendRequestEntity)
-    private readonly friendRequestRepository: Repository<FriendRequestEntity>,
   ) {}
 
   async unFriend(userId: number, friend_id: number) {
     const friendships = await this.frienShipRepository.find({
       where: [
-        { user_id: userId, friend_id: friend_id,deleteAt:IsNull() },
-        { user_id: friend_id, friend_id: userId,deleteAt:IsNull() },
+        { user_id: userId, friend_id: friend_id, deleteAt: IsNull() },
+        { user_id: friend_id, friend_id: userId, deleteAt: IsNull() },
       ],
     });
+
     if (!friendships.length) {
       throw new BadRequestException('2 người không phải là bạn bè');
     }
-    for (const friendship of friendships){
+
+    for (const friendship of friendships) {
       ((friendship.status = FRIEND_SHIP_STATUS.UNFRIENDED),
         await this.frienShipRepository.softDelete(friendship.id));
     }
+
     return {
       message: 'đã hủy kết bạn thành công',
     };
@@ -40,12 +35,10 @@ export class friendShipSerice {
 
   async listFriend(user_id: number) {
     const listFriend = await this.frienShipRepository.find({
-      where: [
-        { user_id: user_id, status: FRIEND_SHIP_STATUS.ACTIVE },
-        { friend_id: user_id, status: FRIEND_SHIP_STATUS.ACTIVE },
-      ],
+      where: [{ user_id: user_id, status: FRIEND_SHIP_STATUS.ACTIVE }],
       relations: ['user', 'friend'],
     });
+
     return listFriend;
   }
 }
