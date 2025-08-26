@@ -5,6 +5,7 @@ import { In, Repository } from 'typeorm';
 import { CommentEntity } from '../comment/comment.entity';
 import { LikeEntity } from '../like/like.entity';
 import { PostEntity } from '../post/post.entity';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 
 @Injectable()
 export class NewsfeedService {
@@ -22,7 +23,7 @@ export class NewsfeedService {
     private readonly postRepo: Repository<PostEntity>,
   ) {}
 
-  async getNewFeed(user_id: number) {
+  async getNewFeed(user_id: number, pagination: PaginationQueryDto) {
     const friendships = await this.friendShipRepo.find({
       where: { user_id: user_id },
     });
@@ -30,11 +31,10 @@ export class NewsfeedService {
     const friendIds = friendships.map((f) => f.friend_id);
     if (friendships.length === 0) return [];
 
+    const { page, limit } = pagination;
     const posts = await this.postRepo.find({
       where: { user: { id: In(friendIds) } },
       relations: ['user'],
-      order: { createAt: 'DESC' },
-      take: 100,
     });
 
     const now = Date.now(); // thời gian hiện tại tính theo mini giây
@@ -55,13 +55,24 @@ export class NewsfeedService {
 
       return {
         ...post,
-        score:finalScore
+        score: finalScore,
       };
     });
 
     // sắp xếp điểm từ cao tới thấp
-    scorePosts.sort((a,b) => b.score - a.score)
+    scorePosts.sort((a, b) => b.score - a.score);
 
-    return scorePosts
+    const total = scorePosts.length;
+    const pageCount = Math.ceil(total/limit);
+    const result = scorePosts.slice((page - 1) * limit, page * limit)
+    
+
+    return {
+      posts:result,
+      total,
+      page,
+      limit,
+      pageCount,
+    };
   }
 }
