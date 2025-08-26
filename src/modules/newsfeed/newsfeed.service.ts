@@ -34,7 +34,7 @@ export class NewsfeedService {
     const { page, limit } = pagination;
     const [posts, total] = await this.postRepo.findAndCount({
       where: { user: { id: In(friendIds) } },
-      relations: ['user'],
+      relations: ['user','images'],
       order: { createAt: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
