@@ -32,9 +32,12 @@ export class NewsfeedService {
     if (friendships.length === 0) return [];
 
     const { page, limit } = pagination;
-    const posts = await this.postRepo.find({
+    const [posts, total] = await this.postRepo.findAndCount({
       where: { user: { id: In(friendIds) } },
       relations: ['user'],
+      order: { createAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
     });
 
     const now = Date.now(); // thời gian hiện tại tính theo mini giây
@@ -62,13 +65,10 @@ export class NewsfeedService {
     // sắp xếp điểm từ cao tới thấp
     scorePosts.sort((a, b) => b.score - a.score);
 
-    const total = scorePosts.length;
-    const pageCount = Math.ceil(total/limit);
-    const result = scorePosts.slice((page - 1) * limit, page * limit)
-    
+    const pageCount = Math.ceil(total / limit);
 
     return {
-      posts:result,
+      scorePosts,
       total,
       page,
       limit,
