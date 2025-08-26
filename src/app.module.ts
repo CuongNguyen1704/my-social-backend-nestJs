@@ -21,6 +21,7 @@ import { LikeEntity } from './modules/like/like.entity';
 import { FriendRequestEntity } from './modules/friend/entities/friend_request.entity';
 import { FriendModule } from './modules/friend/friend.module';
 import { FriendShipEntity } from './modules/friend/entities/friendship.entity';
+import { NewsfeedModule } from './modules/newsfeed/newsfeed.module';
 
 @Module({
   imports: [
@@ -38,7 +39,7 @@ import { FriendShipEntity } from './modules/friend/entities/friendship.entity';
       synchronize:true
       
     }),
-    UserModule,AuthModule,MailModule,UploadModule,PostModule,ImageModule,CommentModule,LikeModule,FriendModule
+    UserModule,AuthModule,MailModule,UploadModule,PostModule,ImageModule,CommentModule,LikeModule,FriendModule,NewsfeedModule
   ],
   controllers: [AppController],
   providers: [AppService],
