@@ -11,6 +11,7 @@ import { PostService } from '../post/post.service';
 import { CommentService } from '../comment/comment.service';
 import { CreateLikeCommentDto } from './dto/like-comment';
 import { RelatedType } from '../user/enums';
+import { NotificationService } from '../notifications/notification.service';
 
 @Injectable()
 export class LikeService {
@@ -19,6 +20,7 @@ export class LikeService {
     private readonly likeRepository: Repository<LikeEntity>,
     private readonly postService: PostService,
     private readonly commentService: CommentService,
+    private readonly notificationSevice:NotificationService
   ) {}
 
   async PostLike(likeDto: CreatePostLikeDto, user_id: number) {
@@ -46,6 +48,10 @@ export class LikeService {
 
     const saveLikePost = await this.likeRepository.save(newLike);
     await this.postService.incrementPostLike(likeDto.related_id);
+    const post = await this.postService.findById(likeDto.related_id)
+    if(post.user_id !== user_id){
+        await  this.notificationSevice.saveNotifi(post.user_id,user_id,post.id)
+    }
     return saveLikePost;
   }
 

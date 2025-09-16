@@ -54,9 +54,9 @@ export class AuthService {
 
   login(user: UserEntity){
     // console.log("user",user)
-      const payload = {email: user.email, sub: user.id}
+      const payload = {email: user.email, sub: user.id} // sửa thêm thằng password
       const refres_token = this.jwtService.sign(payload,{
-        expiresIn: "7d"
+        expiresIn: "7d" 
       })
 
       this.userService.saveRefreshToken(refres_token,user.id)
@@ -170,7 +170,8 @@ async changePassword(userId:number,changePassword:ChangPasswordDto){
 
         const hashPassWord = await bcrypt.hash(changePassword.newPassword,10)
         await this.userRepositoty.update(user.id,{
-          password: hashPassWord
+          password: hashPassWord,
+          lastPasswordChange:new Date()
         })
 
         return true

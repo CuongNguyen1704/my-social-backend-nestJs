@@ -12,6 +12,7 @@ import { CommentEntity } from '../comment/comment.entity';
 import { LikeEntity } from '../like/like.entity';
 import { FriendRequestEntity } from '../friend/entities/friend_request.entity';
 import { FriendShipEntity } from '../friend/entities/friendship.entity';
+import { NotificationEntity } from '../notifications/notification.entiti';
 
 @Entity('users')
 export class UserEntity extends BaseEntity {
@@ -82,4 +83,13 @@ export class UserEntity extends BaseEntity {
   @OneToMany(()=>FriendShipEntity,(friendShip)=>friendShip.friend)
   friendshipAsFriend:FriendShipEntity[]
 
+  @Column({type:'timestamp',nullable:true})
+  lastPasswordChange:Date
+
+  @OneToMany(()=>NotificationEntity,(notifi)=>notifi.userNotifi)
+  userNotifi:NotificationEntity[]
+
+  @OneToMany(()=>NotificationEntity,(notifi)=>notifi.actorNotifi)
+  actorNotifi:NotificationEntity[]
+  
 }
