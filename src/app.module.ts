@@ -22,6 +22,8 @@ import { FriendRequestEntity } from './modules/friend/entities/friend_request.en
 import { FriendModule } from './modules/friend/friend.module';
 import { FriendShipEntity } from './modules/friend/entities/friendship.entity';
 import { NewsfeedModule } from './modules/newsfeed/newsfeed.module';
+import { NotificationModule } from './modules/notifications/notification.module';
+import { NotificationEntity } from './modules/notifications/notification.entiti';
 
 @Module({
   imports: [
@@ -35,11 +37,12 @@ import { NewsfeedModule } from './modules/newsfeed/newsfeed.module';
       username: env.getAsStr('DB_USERNAME'),
       password: env.getAsStr('DB_PASSWORD'),
       database: env.getAsStr('DB_DATABASE'),
-      entities: [UserEntity,PostEntity,ImageEntity,CommentEntity,LikeEntity,FriendRequestEntity,FriendShipEntity],
+      entities: [UserEntity,PostEntity,ImageEntity,CommentEntity,LikeEntity,FriendRequestEntity,FriendShipEntity,NotificationEntity],
       synchronize:true
       
     }),
-    UserModule,AuthModule,MailModule,UploadModule,PostModule,ImageModule,CommentModule,LikeModule,FriendModule,NewsfeedModule
+    UserModule,AuthModule,MailModule,UploadModule,PostModule,ImageModule,CommentModule,LikeModule,FriendModule,NewsfeedModule,
+    NotificationModule
   ],
   controllers: [AppController],
   providers: [AppService],

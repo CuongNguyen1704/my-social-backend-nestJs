@@ -17,6 +17,9 @@ export class PostEntity extends BaseEntity {
   @Column({default:0 ,name:'like_count'}) 
   like_count: number;
 
+  @Column({name:'user_id'})
+  user_id:number
+
   @ManyToOne(() => UserEntity, (user) => user.posts)
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;

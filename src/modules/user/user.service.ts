@@ -156,4 +156,13 @@ export class UserService {
        }
        return user
   }
+  // sửa thêm
+  // async veryfiPassword(passwordHash:string){
+  //     const passWord = await this.userRepository.findOne({
+  //       where:{password:passwordHash}
+  //     })
+  //     if(!passWord){
+  //       throw new NotFoundException("Token Invalid")
+  //     }
+  // }
 }

@@ -1,0 +1,29 @@
+services:
+  mysocical:
+    build: .
+    command: sh -c "npm install && npm run start"
+    ports:
+      - "8080:3000"
+    working_dir: /app
+    volumes:
+      - ./:/app
+    depends_on:
+      - postgres
+    environment:
+       DB_HOST: postgres
+       DB_PORT: 5432
+       DB_USERNAME: postgres
+       DB_PASSWORD: 123456
+       DB_DATABASE: mysocail_backend_nestjs
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: mysocail_backend_nestjs
+    ports:
+      - "5430:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+volumes:
+  postgres_data:

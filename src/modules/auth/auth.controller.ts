@@ -45,6 +45,7 @@ export class AuthController {
     @UseGuards(JwtAuthGuard)
     @Get('profile')
     profile (@Request() req:RequestWithUser): ProfileDto{
+        // console.log(req.user)
         const {email, name, password} = req.user
         return {email,name,password};
     }
